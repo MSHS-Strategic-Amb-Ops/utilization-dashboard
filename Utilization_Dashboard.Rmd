@@ -126,7 +126,7 @@ font-family: calibri;
 </style>
 
 <style>
-.navbar {
+.sidebar {
 margin: 0;
 padding: 0;
 height: 100%;
