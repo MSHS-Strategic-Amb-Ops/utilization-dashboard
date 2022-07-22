@@ -424,7 +424,7 @@ Sidebar {.sidebar data-width=300}
 -----------------------------------------------------------------------
 
 ```{r Sinai Logo Overview, echo=FALSE, out.width = '80%'}
-knitr::include_graphics("Mount_Sinai_Logo_H.png")
+knitr::include_graphics("/nfs/data/Applications/Ambulatory/Mount_Sinai_Logo_H.png")
 ```
 
 <span style='font-size: 18px; color: #d80b8c'>**About**</span><br/>
@@ -452,7 +452,7 @@ Sidebar {.sidebar data-width=300}
 -----------------------------------------------------------------------
 
 ```{r Sinai Logo Location, echo=FALSE, out.width = '80%'}
-knitr::include_graphics("Mount_Sinai_Logo_H.png")
+knitr::include_graphics("/nfs/data/Applications/Ambulatory/Mount_Sinai_Logo_H.png")
 ```
 
 
@@ -1177,7 +1177,7 @@ Sidebar {.sidebar data-width=300}
 -----------------------------------------------------------------------
 
 ```{r Sinai Logo Specialty, echo=FALSE, out.width = '80%'}
-knitr::include_graphics("Mount_Sinai_Logo_H.png")
+knitr::include_graphics("/nfs/data/Applications/Ambulatory/Mount_Sinai_Logo_H.png")
 ```
 
 
@@ -1190,7 +1190,7 @@ Sidebar {.sidebar data-width=300}
 -----------------------------------------------------------------------
 
 ```{r Sinai Logo Provider, echo=FALSE, out.width = '80%'}
-knitr::include_graphics("Mount_Sinai_Logo_H.png")
+knitr::include_graphics("/nfs/data/Applications/Ambulatory/Mount_Sinai_Logo_H.png")
 ```
 
 
