@@ -127,21 +127,6 @@ font-family: calibri;
 }
 </style>
 
-<style>
-.sidebar {
-margin: 0;
-padding: 0;
-height: 100%;
-display: block;
-position: fixed;
-width: 300px;
-}
-body {
-margin-left: 200px; 
-padding-top:0px
-}
-</style>
-
 
 ```{r Load Packages, echo = FALSE, warning = FALSE, message = FALSE}
 # # Load packages -----------------------------------------------------------------------------------
