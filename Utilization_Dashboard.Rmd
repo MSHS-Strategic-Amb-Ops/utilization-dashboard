@@ -1154,7 +1154,8 @@ renderReactable({
       h2(paste(paste0(as.character(loc_dashboard_tbl[index,c("Building Address")])," - ",
                       as.character(loc_dashboard_tbl[index,c("Floor")])),
                ": Volume by Department")),
-      loc_volume_detail_function(index)
+      loc_volume_detail_function(index),
+      h2("")
     )
     } # Close details
 
