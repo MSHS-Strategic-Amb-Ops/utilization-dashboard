@@ -1,0 +1,1895 @@
+---
+title: "MSHS Space Utilization"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    theme: readable
+---
+
+<style type="text/css">
+.dataTables_wrapper {
+    font-family: calibri;
+    font-size: 14px;
+    <!-- direction: rtl; -->
+    <!-- position: relative; -->
+    <!-- clear: both; -->
+    <!-- *zoom: 1; -->
+    <!-- zoom: 1; -->
+}
+</style>
+
+<style type="text/css">
+.sticky {
+  position: sticky !important;
+  background: #fff;
+  z-index: 1;
+}
+
+.left-col-1 {
+  left: 0;
+}
+
+.left-col-2 {
+  left: 100px;
+}
+
+.left-col-3 {
+  left: 200px;
+  border-right: 1px solid #eee !important;
+}
+
+.left-col-4 {
+  left: 300px;
+  border-right: 1px solid #eee !important;
+}
+
+.left-col-5 {
+  left: 400px;
+  border-right: 1px solid #eee !important;
+}
+
+.right-col-1 {
+  right: 0;
+  border-left: 1px solid #eee !important;
+}
+</style>
+
+<style type="text/css">
+.bar-sort-header[aria-sort="ascending"] {
+  box-shadow: inset 0 3px 0 0 rgba(0, 0, 0, 0.6) !important;
+}
+
+.bar-sort-header[aria-sort="descending"] {
+  box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, 0.6) !important;
+}
+
+.bar-sort-header {
+  transition: box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+</style>
+
+<style type="text/css">
+.table {
+    width: 80%;
+
+}
+</style>
+
+<style>
+.blackbox {
+  padding: 1em;
+  background: white;
+  color: black;
+  border: 1px solid #7f7f7f;
+  width: 100%;
+  position: center;
+  align: center;
+  margin: 0px auto;
+}
+.center {
+  text-align: left;
+  margin: 0px auto;
+}
+</style>
+
+<style type = "text/css">
+h2 {
+font-family: calibri;
+    font-size: 20px;
+    font-weight: bold;
+    color: black; 
+    background-color: #dddedd;
+    text-indent: 20px;}
+</style>
+
+<!-- <style type = "text/css"> -->
+<!-- div { -->
+<!--     white-space: pre; -->
+<!-- } -->
+<!-- </style> -->
+
+<style>
+.blackbox {
+  padding: 1em;
+  background: white;
+  color: black;
+  border: 2px solid #7f7f7f;
+  width: 100%;
+  position: center;
+  align: center;
+  margin: 0px auto;
+}
+.center {
+  text-align: left;
+  margin: 0px auto;
+}
+</style>
+
+```{r Load Packages, echo = FALSE, warning = FALSE, message = FALSE}
+# # Load packages -----------------------------------------------------------------------------------
+suppressMessages({
+  memory.limit(size = 10000000)
+  library(readxl)
+  library(writexl)
+  library(plyr)
+  library(dplyr)
+  library(data.table)
+  library(zoo)
+  library(shiny)
+  library(shinydashboard)
+  library(shinydashboardPlus)
+  library(shinyWidgets)
+  library(htmlwidgets)
+  library(lubridate)
+  library(tcltk)
+  library(tidyverse)
+  library(plotly)
+  library(knitr)
+  library(kableExtra)
+  library(leaflet)
+  library(grid)
+  library(gridExtra)
+  library(eeptools)
+  library(ggQC)
+  #library(zipcode)
+  library(utils)
+  library(scales)
+  library(chron)
+  library(bupaR)
+  library(shiny)
+  library(DT)
+  library(DiagrammeR)
+  library(shinyalert)
+  library(edeaR)
+  library(processmapR)
+  library(processmonitR)
+  library(processanimateR)
+  library(tidyr)
+  library(lubridate)
+  library(RColorBrewer)
+  library(DiagrammeR)
+  library(ggplot2)
+  library(leaflet)
+  library(readr)
+  library(highcharter)
+  library(ggforce) # for 'geom_arc_bar'
+  library(packcircles) # for packed circle graph
+  library(viridis)
+  library(ggiraph)
+  library(treemapify)
+  library(treemap)
+  library(broom)
+  library(extrafont)
+  library(tis) # for US holidays
+  library(vroom)
+  library(sjmisc)
+  library(tools)
+  library(here)
+  library(shinyBS)
+  library(shinyscreenshot)
+  library(fasttime)
+  library(shinycssloaders)
+  library(feather)
+  # library(zipcodeR)
+  library(formattable)
+  library(shinyjs)
+  library(janitor)
+  library(patchwork)
+  library(flexdashboard)
+  # library(tidyverse)
+  # library(viridis)
+  # library(hrbrthemes)
+  # library(plotly)
+  # install.packages("bsts")
+  library(bsts)
+  library(reactable)
+  # install.packages("reactablefmtr")
+  library(reactablefmtr)
+})
+
+```
+
+
+```{r Graph asthetics, echo = FALSE, warning = FALSE, message = FALSE}
+
+### Color Functions for Graphs ============================================================
+# Mount Sinai corporate colors "USE THIS TO ADD COLORS"
+MountSinai_colors <- c(
+  `dark purple`  = "#212070",
+  `dark pink`    = "#d80b8c",
+  `dark blue`    = "#00aeef",
+  `dark grey`    = "#7f7f7f",
+  `yellow`       = "#ffc000",
+  `purple`       = "#7030a0",
+  `med purple`   = "#5753d0",
+  `med pink`     = "#f75dbe",
+  `med blue`     = "#5cd3ff",
+  `med grey`     = "#a5a7a5",
+  `light purple` = "#c7c6ef",
+  `light pink`   = "#fcc9e9",
+  `light blue`   = "#c9f0ff",
+  `light grey`   = "#dddedd"
+  )
+
+# Function to extract Mount Sinai colors as hex codes
+# Use Character names of MountSinai_colors
+
+MountSinai_cols <- function(...) {
+  cols <- c(...)
+  
+  if (is.null(cols))
+    return (MountSinai_colors)
+  
+  MountSinai_colors[cols]
+}
+
+# Color Function that can be used to call all colors is "MountSinai_cols()"
+# Use in ggplot 
+
+  #MountSinai_cols()       # will provide all colors and their hex codes in a table 
+  #MountSinai_cols("pink") # will provide color name and the hex code for the pink color
+
+# Create palettes 
+MountSinai_palettes <- list(
+  `all`   = MountSinai_cols("dark purple","dark pink","dark blue","dark grey",
+                            "med purple","med pink","med blue","med grey", 
+                            "light purple","light pink","light blue","light grey"),
+  
+  `main`  = MountSinai_cols("dark purple","dark pink","dark blue","dark grey"),
+  
+  `purple`  = MountSinai_cols("dark purple","med purple","light purple"),
+  
+  `pink`  = MountSinai_cols("dark pink","med pink","light pink"),
+  
+  `blue`  = MountSinai_cols("dark blue", "med blue", "light blue"),
+  
+  `grey`  = MountSinai_cols("dark grey", "med grey", "light grey"),
+  
+  `purpleGrey` = MountSinai_cols("dark purple", "dark grey"),
+  
+  `pinkBlue` = MountSinai_cols("dark pink", "dark blue")
+  
+)
+
+# MountSinai_palettes
+# Return function to interpolate a Mount Sinai color palette
+# default value is the main palette, reverse = True will change the order
+
+MountSinai_pal <- function(palette = "all", reverse = FALSE, ...) {
+  pal <- MountSinai_palettes[[palette]]
+  
+  if (reverse) pal <- rev(pal)
+  
+  colorRampPalette(pal, ...)
+}
+
+
+
+# Scale Function for ggplot can be used instead of scale_color_manual
+scale_color_MountSinai <- function(palette = "all", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- MountSinai_pal(palette = palette, reverse = reverse)
+  
+  if (discrete) {
+    discrete_scale("colour", paste0("MountSinai_", palette), palette = pal, ...)
+  } else {
+    scale_color_gradientn(colours = pal(256), ...)
+  }
+}
+
+# Scale Fill for ggplot insetead of scale_fill_manual 
+scale_fill_MountSinai <- function(palette = "all", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- MountSinai_pal(palette = palette, reverse = reverse)
+
+  if (discrete) {
+    discrete_scale("fill", paste0("MountSinai_", palette), palette = pal, ...)
+  } else {
+    scale_fill_gradientn(colours = pal(256), ...)
+  }
+}
+
+# Use in ggplot 
+  # scale_color_MountSinai("main")
+
+```
+
+
+```{r Custom Functions, echo = FALSE, warning = FALSE, message = FALSE}
+
+'%!in%' <- function(x,y)!('%in%'(x,y)) # Does not include
+not_all_na <- function(x) all(!is.na(x)) # Exclude columns with All NAs
+
+```
+
+
+```{r Data Tables Import, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Local Run --------------------------------------------------------------------
+# locations_util_turns_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_merged.rds")
+# locations_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_merged.rds")
+# 
+# locations_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_summary.rds")
+# locations_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_summary.rds")
+# 
+# 
+# # Utilization by Provider Tables -----------------------------------------------
+# provider_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_merged.rds")
+# 
+# provider_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_turns_summary.rds")
+# provider_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_summary.rds")
+# 
+# 
+# # Room Inventory ---------------------------------------------------------------
+# pt_rooms_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/pt_rooms_summary.rds")
+
+
+
+
+# Github Run -------------------------------------------------------------------
+locations_util_turns_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_merged.rds")
+locations_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_merged.rds")
+
+locations_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_summary.rds")
+locations_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_summary.rds")
+
+
+# Utilization by Provider Tables -----------------------------------------------
+provider_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_merged.rds")
+
+provider_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_turns_summary.rds")
+provider_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_summary.rds")
+
+
+# Room Inventory ---------------------------------------------------------------
+pt_rooms_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/pt_rooms_summary.rds")
+
+```
+
+
+```{r Merge Location Utilization by Turns and Durations, echo = FALSE, warning = FALSE, message = FALSE}
+  
+locations_util_summary_merged <- left_join(locations_util_turns_summary, locations_util_dur_summary, 
+                                           by = c("Appt.YearQtr", "Building Address", "Floor", "total_rooms", "Visit.Method", "Session"))
+
+locations_util_summary_merged <- locations_util_summary_merged %>%
+  mutate(Benchmark = ifelse(Session == "Day", Benchmark, Benchmark/2),
+         visits_var = avg_vol - (total_rooms*Benchmark),
+         visits_util = round(avg_vol/(total_rooms*Benchmark),2)*100,
+         dur_util = ifelse(Session == "Day", round(avg_dur/(total_rooms*8*60),2)*100,
+                           round(avg_dur/(total_rooms*4*60),2)*100))
+
+```
+
+
+```{r Merge Provider Utilization by Turns and Durations, echo = FALSE, warning = FALSE, message = FALSE}
+  
+provider_util_summary_merged <- left_join(provider_util_turns_summary, provider_util_dur_summary,
+                                          by = c("Appt.YearQtr", "Campus", "Campus.Specialty", "Department", "Provider", 
+                                                 "Visit.Method", "Session"))
+
+# Summarized utilization by hour data 
+prov_util_hour <- provider_util_dur_merged %>%
+      group_by(Appt.YearQtr, Campus, Campus.Specialty, Provider, Appt.Day, space_time, Visit.Method) %>%
+      summarise(avg_dur = sum(avg_dur)) %>%
+      arrange(space_time) %>%
+      arrange(factor(Appt.Day, levels = c("Mon","Tue","Wed","Thu","Fri")))
+      # mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100,
+      #        space_need = ceiling(avg_dur/60)) 
+
+prov_util_hour_all <- provider_util_dur_merged %>%
+      group_by(Appt.YearQtr, Campus, Campus.Specialty, Provider, Appt.Day, space_time) %>%
+      summarise(avg_dur = sum(avg_dur)) %>%
+      arrange(space_time) %>%
+      arrange(factor(Appt.Day, levels = c("Mon","Tue","Wed","Thu","Fri"))) %>%
+      # mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100,
+      #        space_need = ceiling(avg_dur/60)) %>%
+  mutate(Visit.Method = "ALL")
+
+prov_util_hour <- bind_rows(prov_util_hour, prov_util_hour_all) 
+
+
+prov_util_visit_type <- provider_util_dur_merged %>%
+        group_by(Appt.YearQtr, Campus, Campus.Specialty, Provider, Appt.Day, space_time, Visit.Method) %>%
+        summarise(avg_dur = sum(avg_dur)) %>%
+        group_by(Appt.YearQtr, Campus, Campus.Specialty, Provider, space_time, Visit.Method) %>%
+        summarise(avg_dur = mean(avg_dur)) %>%
+        arrange(space_time) 
+        # mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100)
+
+```
+
+Overview
+===================================================================   
+
+Sidebar {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+```{r Sinai Logo Overview, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("Mount_Sinai_Logo_H.png")
+```
+
+<span style='font-size: 18px; color: #d80b8c'>**About**</span><br/>
+
+
+<!-- Review Provider cFTE Here:<br/> [MSHS Provider cFTE Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/Eb6YVlrJCsVFsiPYat_zz6wBXGNCMb7nlYUwKeDkPO58JA?e=YL7G1o) -->
+
+<!-- Review Provider Room Capacity Here:<br/> [MSHS Room Capacity Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/EbLQ0_ENVSBAvDqlyIDy0mMBfKN-OGtF5dJfVIqyaZh2rQ?e=sRX4tO) -->
+
+<!-- Review Location Room Capacity Here:<br/> [MSHS Room Capacity Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/EevOwg90-2FMj2D4iZlQY_oBrOgB-Z-P-AkRuaynxyjRng?e=slreNu) -->
+
+*Data Sources: Epic Clarity*<br/>
+<!-- <span style='font-size: 12px'>*- Epic Clarity for visit volume*</span><br/> -->
+<!-- <span style='font-size: 12px'>*- CPSC for worked RVUs*</span><br/>  -->
+<!-- <span style='font-size: 12px'>*- Vizient Inc./Vizient Data Services for productivity benchmarks*</span><br/> -->
+
+*For any questions, please contact <soyoun.kweon@mssm.edu>*
+
+
+
+Utilization by Location
+===================================================================   
+
+Sidebar {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+```{r Sinai Logo Location, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("Mount_Sinai_Logo_H.png")
+```
+
+
+<span style='font-size: 18px; color: #d80b8c'>**Data Filters**</span><br/>
+
+
+```{r Locations Data Filters, echo = FALSE, warning = FALSE, message = FALSE}
+
+location_mapping <- unique(locations_util_summary_merged[,c("Building Address","Floor")])
+
+# Location Selection Filter ------------------------------------------------------
+locations_choice <- sort(unique(location_mapping$`Building Address`))
+locations_default <- locations_choice[1]
+floor_choice <- (((location_mapping %>% filter(`Building Address` == locations_default)))$Floor)
+floor_default <- (((location_mapping %>% filter(`Building Address` == locations_default)))$Floor)[1]
+
+pickerInput(inputId="select_location", label = "Select Location:",
+            choices = locations_choice,
+            selected = locations_default,
+            multiple = TRUE,
+            options = pickerOptions(
+              liveSearch = TRUE,
+              actionsBox = TRUE,
+              selectedTextFormat = "count > 1",
+              countSelectedText = "{0}/{1} locations selected",
+              dropupAuto = FALSE),
+          choicesOpt = list(
+      style = rep_len("font-size: 75%; line-height: 1.6;", length(locations_choice))
+      )
+) # choices style)
+
+
+# Floor Selection Filter ------------------------------------------------------
+pickerInput(inputId="select_floor", label = "Select Location:",
+            choices = floor_choice,
+            selected = floor_default,
+            multiple = TRUE,
+            options = pickerOptions(
+              liveSearch = TRUE,
+              actionsBox = TRUE,
+              selectedTextFormat = "count > 1",
+              countSelectedText = "{0}/{1} floors selected",
+              dropupAuto = FALSE),
+            choicesOpt = list(
+        style = rep_len("font-size: 75%; line-height: 1.6;", length(floor_choice))
+      )
+      ) # choices style)
+
+# Reporting Quarter Selection Filter -------------------------------------------
+reporting_quarters <- as.character(unique(locations_util_summary_merged$Appt.YearQtr))
+reporting_quarters_choice <- sort(reporting_quarters)
+reporting_quarters_default <- reporting_quarters_choice[length(reporting_quarters_choice)]
+
+
+pickerInput(inputId="select_location_quarter", label = "Select Reporting Quarter:",
+            choices = reporting_quarters_choice,
+            selected = reporting_quarters_default,
+            multiple = FALSE,
+                choicesOpt = list(
+        style = rep_len("font-size: 75%; line-height: 1.6;", length(reporting_quarters))
+      )
+      ) # choices style))
+
+
+# Visit Method Selection Filter ------------------------------------------------
+awesomeRadio(
+   inputId = "select_location_visit",
+   label = "Select Visits to Include:", 
+    choices = c("ALL", "IN PERSON", "TELEHEALTH"),
+   selected = "IN PERSON",
+   status = "info"
+)
+
+
+actionButton("update_location", "CLICK TO UPDATE", width = "80%")
+
+# Format Click to Update Button ------------------------------------------------
+tags$style(HTML("
+    #update_location {
+    position: absolute;
+    left: 30px;
+    background: #E8E8E8;
+    color: black;
+    padding: 1em
+    position: center;
+    align: center;
+    margin: 0px auto;}"))
+
+
+# Update Dependent Inputs ------------------------------------------------------
+observeEvent(input$select_location,{
+      floor_choice <- ((location_mapping %>% filter(`Building Address` %in% input$select_location)))$Floor
+      
+      updatePickerInput(session,
+                        inputId = "select_floor",
+                        choices = floor_choice,
+                        selected = floor_choice
+      )
+  },
+  ignoreInit = TRUE,
+  ignoreNULL = FALSE)
+
+```
+
+
+<br/>
+<br/>
+
+
+-------------------------
+
+<span style='font-size: 18px; color: #d80b8c'>**Info**</span><br/>
+
+<!-- Review Provider cFTE Here:<br/> [MSHS Provider cFTE Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/Eb6YVlrJCsVFsiPYat_zz6wBXGNCMb7nlYUwKeDkPO58JA?e=YL7G1o) -->
+
+<!-- Review Provider Room Capacity Here:<br/> [MSHS Room Capacity Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/EbLQ0_ENVSBAvDqlyIDy0mMBfKN-OGtF5dJfVIqyaZh2rQ?e=sRX4tO) -->
+
+<!-- Review Location Room Capacity Here:<br/> [MSHS Room Capacity Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/EevOwg90-2FMj2D4iZlQY_oBrOgB-Z-P-AkRuaynxyjRng?e=slreNu) -->
+
+*Data Sources: Epic Clarity*<br/>
+<!-- <span style='font-size: 12px'>*- Epic Clarity for visit volume*</span><br/> -->
+<!-- <span style='font-size: 12px'>*- CPSC for worked RVUs*</span><br/>  -->
+<!-- <span style='font-size: 12px'>*- Vizient Inc./Vizient Data Services for productivity benchmarks*</span><br/> -->
+
+*For any questions, please contact <soyoun.kweon@mssm.edu>*
+
+
+```{r Reactive Datasets for Utilization by Location, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Reactive function for filtering "locations_util_summary_merged"
+groupByFilters_locSummary <- function(dt, location, quarter, visit.method){
+  result <- dt %>% 
+    filter(`Building Address` %in% location, as.character(Appt.YearQtr) %in% quarter, Visit.Method %in% visit.method)
+  return(result)
+}
+
+# locUtilSummary <- reactive({
+#   groupByFilters_locSummary(locations_util_summary_merged,
+#                             input$select_location, input$select_location_quarter, input$select_location_visit)
+# })
+
+locUtilSummary <- eventReactive(list(input$update_location),{
+  validate(
+      need(input$select_location != "", "Please select a location."),
+      need(input$select_location_visit != "", "Please select a visit type.")
+    )
+    groupByFilters_locSummary(locations_util_summary_merged,
+                            input$select_location, input$select_location_quarter, input$select_location_visit)
+  })
+    
+
+# Reactive function for filtering "locations_util_dur_merged"
+groupByFilters_locDur <- function(dt, location, quarter){
+  result <- dt %>% 
+    filter(`Building Address` %in% location, as.character(Appt.YearQtr) %in% quarter)
+  return(result)
+}
+
+# locUtilDur <- reactive({
+#   groupByFilters_locDur(locations_util_dur_merged,
+#                             input$select_location, input$select_location_quarter)
+# })
+
+locUtilDur <- eventReactive(list(input$update_location),{
+  validate(
+      need(input$select_location != "", "Please select a location."),
+      need(input$select_location_quarter != "", "Please select a year-quarter.")
+    )
+    groupByFilters_locDur(locations_util_dur_merged,
+                            input$select_location, input$select_location_quarter)
+  })
+
+```
+
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+### Selected Quarter
+
+:::: {.blackbox data-latex=""}
+::: {.center data-latex=""}
+<span style='font-size: 16px;; color: #d80b8c'>**Metric Definitions:**</span><br/>
+<span style='font-size: 14px;'>-- **Average Weekday Volume:** Average of all working weekday (Mon-Fri) volumes</span><br/>
+<span style='font-size: 14px;'>-- **Volume Variance to Benchmark:** Difference between Average Weekday Volume and Expected Daily Volume Target based on total room count and visits/room/day benchmark^3^</span><br/>
+<span style='font-size: 12px;'>*^3^10 rooms available per day and 10 visits/room/day benchmark equals to 100 expected daily volume target; 120 average weekday volume results in 20 Volume Variance to Benchmark*</span><br/>
+<span style='font-size: 14px;'>-- **% Utilization (Visits per Room)** Average Weekday Volume per Room over Visits/Room/Day Benchmark</span><br/>
+<span style='font-size: 14px;'>-- **% Utilization (Visit Durations):** Total sum of scheduled visit durations over total room time available^4^</span><br/>
+<span style='font-size: 12px;'>*^4^Total room time available is calculated based on Total Rooms Available per Day x Total Working Hours per Day (10 rooms available per day x 8 working hours per day = 80 hours of room time available per day*</span>
+<!-- <span style='font-size: 16px;'>-- **% Utilization (Visit Durations):** Total sum of scheduled visit durations over total room time available with 20% adjustment factor to account for room turnovers and any non-physician contact activities that may happen in rooms^4^</span><br/> -->
+<!-- <span style='font-size: 14px;'>*^4^Total room time available is calculated based on Total Rooms Available per Day x Total Working Hours per Day (10 rooms available per day x 8 working hours per day = 80 hours of room time available per day*</span><br/> -->
+:::
+::::
+
+<br/>
+
+
+```{r Utilization by Location Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+renderReactable({
+  
+  data <- locUtilSummary() %>%
+    mutate(visits_util = visits_util/100,
+           dur_util = dur_util/100)
+  
+  # data <- locations_util_summary_merged %>%
+  #   filter(`Building Address` == "10 Union Square") %>%
+  #   filter(Appt.YearQtr == "2022 Q2") %>%
+  #   filter(Visit.Method == "ALL") %>%
+  #   mutate(visits_util = visits_util/100,
+  #          dur_util = dur_util/100)
+
+  loc_dashboard_tbl <- data %>%
+    dplyr::select(-c("Appt.YearQtr","avg_dur","Visit.Method")) %>%
+    arrange(factor(Session, levels = c("Day","AM","PM"))) %>%
+    group_by(`Building Address`, Floor) %>%
+    mutate(Benchmark = max(Benchmark)) %>%
+    ungroup() %>%
+    pivot_wider(names_from = Session,
+                values_from = avg_vol:dur_util) %>%
+    dplyr::select(`Building Address`, Floor, total_rooms, Benchmark, 
+                  avg_vol_Day, visits_var_Day, visits_util_Day, dur_util_Day,
+                  avg_vol_AM, visits_var_AM, visits_util_AM, dur_util_AM,
+                  avg_vol_PM, visits_var_PM, visits_util_PM, dur_util_PM)
+
+    # loc_dashboard_tbl[is.na(loc_dashboard_tbl)] <- 0
+  
+  
+  # Room Count Summary Function ------------------------------------------------
+  loc_room_summary_function <- function(index){
+    
+    loc_room_summary_tbl <- pt_rooms_summary %>%
+      filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+      filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+      group_by(`Type Name`) %>%
+      summarise(Total = length(unique(Room))) %>%
+      pivot_wider(names_from = `Type Name`,
+                  values_from = Total) 
+    
+    loc_room_summary_tbl <- cbind(`Total Rooms Available` = rowSums(loc_room_summary_tbl), loc_room_summary_tbl)
+    
+    reactable(
+      loc_room_summary_tbl,
+      style = list(fontFamily = 'Calibri',
+                   fontSize = '14px'),
+      defaultColDef = colDef(align = "center", maxWidth = 120,
+                             headerStyle = list(background = "#dddedd", fontWeight = "Bold", fontSize = "14px"),
+                             headerClass = "bar-sort-header"),   
+      bordered = TRUE,
+      highlight = TRUE,
+      # filterable = TRUE,
+      pagination = FALSE,
+      # height = 800,
+      wrap = TRUE,
+      columns = list(
+        `Total Rooms Available` = colDef(headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px")
+                                         # style = list(background = "#EBEBF9")
+                                         )
+      )
+    ) 
+  }
+  
+  
+  # Location Volume Detail Function --------------------------------------------
+  loc_volume_detail_function <- function(index){
+    
+    loc_volume_detail_tbl <- locations_util_turns_merged %>%
+      filter(Appt.YearQtr == input$select_location_quarter) %>%
+      group_by(`Building Address`,Floor, Campus.Specialty, Department, Visit.Method) %>%
+      summarise(avg_vol = sum(avg_vol)) %>%
+      pivot_wider(names_from = Visit.Method,
+                  values_from = avg_vol,
+                  values_fill = 0) %>%
+      mutate(Total = `IN PERSON` + TELEHEALTH,
+             inPerson_perc = round(`IN PERSON`/Total,2)) %>%
+      filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+      filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+      ungroup() %>%
+      dplyr::select(Campus.Specialty, Department, Total, `IN PERSON`, TELEHEALTH, inPerson_perc) %>%
+      rename(Specialty = Campus.Specialty)
+    
+    loc_volume_detail_tbl$inPerson_perc[is.nan(loc_volume_detail_tbl$inPerson_perc)] <- 0
+    
+    
+    reactable(
+      loc_volume_detail_tbl,
+      style = list(fontFamily = 'Calibri',
+                   fontSize = '14px'),
+      defaultColDef = colDef(align = "center", 
+                             headerStyle = list(background = "#dddedd", fontWeight = "Bold", fontSize = "14px"),
+                             headerClass = "bar-sort-header"),   
+      bordered = TRUE,
+      highlight = TRUE,
+      # filterable = TRUE,
+      pagination = FALSE,
+      # height = 800,
+      wrap = TRUE,
+    
+      groupBy = "Specialty",
+      columns = list(
+        Specialty = colDef(align = "left",
+                           minWidth = 150),
+        Department = colDef(align = "left",
+                           minWidth = 150),
+        Total = colDef(name = "Average Weekday Volume",
+                       aggregate = "sum"),
+        `IN PERSON` = colDef(name = "Average Weekday In Person",
+                             aggregate = "sum"),
+        TELEHEALTH = colDef(name = "Average Weekday Telehealth",
+                            aggregate = "sum"),
+        inPerson_perc = colDef(
+          name = "% In Person",
+          aggregate = JS("function(values, rows) {
+          let totalTELEHEALTH = 0
+          let totalTotal = 0
+          rows.forEach(function(row) {
+          totalTELEHEALTH += row['TELEHEALTH']
+          totalTotal += row['Total']
+          })
+          return Math.round((1 - (totalTELEHEALTH / totalTotal))*100) / 100
+          }"),
+          format = colFormat(percent = TRUE)
+          )
+        )
+    )
+    }
+
+  
+  # Utilization by Hour Tables
+    if(input$select_location_visit == "ALL"){
+    
+    loc_util_hour <- locUtilDur() %>%
+      group_by(`Building Address`,Floor, total_rooms, Appt.Day, space_time) %>%
+      summarise(avg_dur = sum(avg_dur)) %>%
+      # filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+      # filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+      arrange(space_time) %>%
+      arrange(factor(Appt.Day, levels = c("Mon","Tue","Wed","Thu","Fri"))) %>%
+      mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100,
+             space_need = ceiling(avg_dur/60))
+      
+    loc_util_visit_type <- locUtilDur() %>%
+        group_by(`Building Address`,Floor, total_rooms, Appt.Day, space_time, Visit.Method) %>%
+        summarise(avg_dur = sum(avg_dur)) %>%
+        group_by(`Building Address`,Floor, total_rooms, space_time, Visit.Method) %>%
+        summarise(avg_dur = mean(avg_dur)) %>%
+        # filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+        # filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+        arrange(space_time) %>%
+        mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100)
+    
+    } else{
+      
+      loc_util_hour <- locUtilDur() %>%
+      filter(Visit.Method == input$select_location_visit) %>%
+      group_by(`Building Address`,Floor, total_rooms, Appt.Day, space_time) %>%
+      summarise(avg_dur = sum(avg_dur)) %>%
+      # filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+      # filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+      arrange(space_time) %>%
+      arrange(factor(Appt.Day, levels = c("Mon","Tue","Wed","Thu","Fri"))) %>%
+      mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100,
+             space_need = ceiling(avg_dur/60))
+      
+      loc_util_visit_type <- locUtilDur() %>%
+        filter(Visit.Method == input$select_location_visit) %>%
+        group_by(`Building Address`,Floor, total_rooms, Appt.Day, space_time, Visit.Method) %>%
+        summarise(avg_dur = sum(avg_dur)) %>%
+        group_by(`Building Address`,Floor, total_rooms, space_time, Visit.Method) %>%
+        summarise(avg_dur = mean(avg_dur)) %>%
+        # filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+        # filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+        arrange(space_time) %>%
+        mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100)
+    }
+  
+  
+  # Location Utilization by Hour Function -------------------------------------
+  days_cols <- c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000","#7030a0","#5753d0")
+  
+  loc_util_detail_function <- function(index){
+  # index = 1
+  
+    # Utilization by Hour Graph
+    loc_util_hour_graph <- 
+      loc_util_hour %>%
+      filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+      filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+      hchart('area',
+             hcaes(x = 'space_time', y = 'dur_util', group = 'Appt.Day')) %>%
+      hc_chart(
+        # plotBorderWidth = 1,
+               # borderColor = "#7f7f7f",
+               # borderRadius = 10,
+               # borderWidth = 1,
+               # backgroundColor = "#dddedd",
+               events = list(load = JS("function() {
+               this.series.forEach(function(series) {
+               if (series.name === 'Mon') {
+        series.update({
+          legendIndex: 1
+        });
+      }
+      if (series.name === 'Tue') {
+        series.update({
+          legendIndex: 2
+        });
+      }
+      if (series.name === 'Wed') {
+        series.update({
+          legendIndex: 3
+        });
+      }
+      if (series.name === 'Thu') {
+        series.update({
+          legendIndex: 4
+        });
+      }
+      if (series.name === 'Fri') {
+        series.update({
+          legendIndex: 5
+        });
+      }
+      if (series.name === 'Sat') {
+        series.update({
+          legendIndex: 6
+        });
+      }
+    });
+  }"))) %>%
+      hc_title(text = "Average Utiliaztion by Hour", 
+               style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0(as.character(loc_dashboard_tbl[index,c("Building Address")])," - ",
+                             as.character(loc_dashboard_tbl[index,c("Floor")])), 
+               style = list(fontWeight = 'bold', fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_colors(days_cols) %>%
+      hc_plotOptions(series = list(format = "{point.y}%", marker = list(symbol = "circle"), lineWidth = 2, fillOpacity = 0.1)) %>%
+      hc_yAxis(title = list(text = "% Utilization"),
+               max = 100,
+               labels = list(format = '{value}%'),
+               plotLines = list(list(color = "red", width = 2, value = 80, dashStyle = "dash"))) %>%
+      hc_xAxis(title = list(enabled = FALSE)) %>%
+      hc_legend(align = "center", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',color ='black', fontSize = "14px")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black",valueSuffix = '%') %>%
+      hc_annotations(list(labels = list(list(point = list(x = 11, y = 80, xAxis = 0, yAxis = 0), text = "80% Utilization"))))
+    
+    
+    # Space Required by Hour Graph
+    loc_space_required_graph <- 
+      loc_util_hour %>%
+      filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+      filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+      hchart('area',
+             hcaes(x = 'space_time', y = 'space_need', group = 'Appt.Day')) %>%
+      hc_chart(
+        # plotBorderWidth = 1,
+               # borderColor = "#7f7f7f",
+               # borderRadius = 10,
+               # borderWidth = 1,
+               # backgroundColor = "#dddedd",
+               events = list(load = JS("function() {
+               this.series.forEach(function(series) {
+               if (series.name === 'Mon') {
+        series.update({
+          legendIndex: 1
+        });
+      }
+      if (series.name === 'Tue') {
+        series.update({
+          legendIndex: 2
+        });
+      }
+      if (series.name === 'Wed') {
+        series.update({
+          legendIndex: 3
+        });
+      }
+      if (series.name === 'Thu') {
+        series.update({
+          legendIndex: 4
+        });
+      }
+      if (series.name === 'Fri') {
+        series.update({
+          legendIndex: 5
+        });
+      }
+      if (series.name === 'Sat') {
+        series.update({
+          legendIndex: 6
+        });
+      }
+    });
+  }"))) %>%
+      hc_title(text = "Average Rooms Required", 
+               style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0(as.character(loc_dashboard_tbl[index,c("Building Address")])," - ",
+                             as.character(loc_dashboard_tbl[index,c("Floor")])), 
+               style = list(fontWeight = 'bold', fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_colors(days_cols) %>%
+      hc_plotOptions(series = list(marker = list(symbol = "circle"), lineWidth = 2, fillOpacity = 0.1)) %>%
+      hc_yAxis(title = list(text = "Number of Rooms"), tickInterval = 1) %>%
+      hc_xAxis(title = list(enabled = FALSE)) %>%
+      hc_legend(align = "center", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',color ='black', fontSize = "14px")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+    
+    
+    # Utilization by Visit Type
+    loc_util_visit_type_graph <- 
+      loc_util_visit_type %>%
+      filter(`Building Address` == as.character(loc_dashboard_tbl[index, c("Building Address")])) %>%
+      filter(Floor == as.character(loc_dashboard_tbl[index, c("Floor")])) %>%
+      hchart('column', 
+             hcaes(x = 'space_time', y = 'dur_util', group = 'Visit.Method'),
+             stacking = "normal",
+             dataLabels = list(enabled = TRUE, format = '{point.y}%')) %>%
+      hc_colors(c("#212070","#d80b8c")) %>%
+      hc_title(text = "Average Utiliaztion by Visit Type", 
+               style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0(as.character(loc_dashboard_tbl[index,c("Building Address")])," - ",
+                             as.character(loc_dashboard_tbl[index,c("Floor")])), 
+               style = list(fontWeight = 'bold', fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_plotOptions(series = list(format = "{point.y}%")) %>%
+      hc_yAxis(title = list(text = "% Utilization"),
+               labels = list(format = '{value}%')) %>%
+      hc_xAxis(title = list(enabled = FALSE)) %>%
+      hc_legend(align = "center", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',color ='black', fontSize = "14px")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black",valueSuffix = '%')
+    
+    hw_grid(loc_util_hour_graph, loc_space_required_graph, loc_util_visit_type_graph)
+} 
+  
+  
+  # ColorBrewer-inspired 3-color scale
+  RdBuYl <- function(x) rgb(colorRamp(c('#c62c34', '#d65440', '#d88359', '#ffffff', '#a0bfd9', '#76b8de', '#36a1d6'))(x), maxColorValue = 255)
+  RdYlGrn <- function(x) rgb(colorRamp(c("#ff0000", "#ff8080", "#ffcc00", "#ffeb99", "#ffffff","#4dff4d", "#00b800"))(x), maxColorValue = 255)
+  
+  c("red", "wheat", "#00b800")
+  
+  reactable(
+    loc_dashboard_tbl,
+    # groupBy = c("Campus","Campus.Specialty"),
+    # defaultPageSize = 5,
+    # elementId = "site-grouping-table",
+    style = list(fontFamily = 'Calibri',
+                 fontSize = '14px'),
+    defaultColDef = colDef(align = "center", 
+                           headerStyle = list(fontWeight = "Bold", fontSize = "12px"),
+                           headerClass = "bar-sort-header"),   
+    highlight = TRUE,
+    # filterable = TRUE,
+    pagination = FALSE,
+    # height = 800,
+    wrap = TRUE,
+    bordered = TRUE,
+    columnGroups = list(
+    colGroup(name = "Day", columns = c("avg_vol_Day", "visits_var_Day", "visits_util_Day", "dur_util_Day"), 
+             headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px")),
+    colGroup(name = "AM (~12PM)", columns = c("avg_vol_AM", "visits_var_AM", "visits_util_AM", "dur_util_AM"),
+              headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px")),
+    colGroup(name = "PM (12PM~)", columns = c("avg_vol_PM", "visits_var_PM", "visits_util_PM", "dur_util_PM"),
+              headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"))
+  ),
+  columns = list(
+    `Building Address` = colDef(
+      name = "Location",
+      minWidth = 200,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px"),
+      align = "left"
+    ),
+    Floor = colDef(
+      minWidth = 50,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px")
+    ),
+    total_rooms = colDef(
+      name = "Total Rooms Available",
+      minWidth = 80,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px")
+    ),
+    Benchmark = colDef(
+      name = "Benchmark Visits/Room/Day",
+      minWidth = 90,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px")
+    ),
+    avg_vol_Day = colDef(name = "Avg Weekday Volume",
+                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9")
+                           ),
+    visits_var_Day = colDef(name = "Variance from Target",
+                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9"),
+                           cell = data_bars(loc_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
+                           ), 
+    visits_util_Day = colDef(name = "% Utilization (By Turns)",
+                                    headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                    format = colFormat(percent = TRUE, digits = 0),
+                                    style = function(value) {
+                                      if(!is.numeric(value)) return()
+                                     normalized <- (value - min(loc_dashboard_tbl$visits_util_Day, na.rm = TRUE))/
+                                       (max(loc_dashboard_tbl$visits_util_Day, na.rm = TRUE) - 
+                                          min(loc_dashboard_tbl$visits_util_Day, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    dur_util_Day = colDef(name = "% Utilization (By Duration)",
+                                 headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                 format = colFormat(percent = TRUE),
+                                  style = function(value) {
+                                    if(!is.numeric(value)) return()
+                                     normalized <- (value - min(loc_dashboard_tbl$dur_util_Day, na.rm = TRUE))/
+                                       (max(loc_dashboard_tbl$dur_util_Day, na.rm = TRUE) - 
+                                          min(loc_dashboard_tbl$dur_util_Day, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    avg_vol_AM = colDef(name = "Avg Weekday Volume",
+                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9")
+                           ),
+    visits_var_AM = colDef(name = "Variance from Target",
+                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9"),
+                           cell = data_bars(loc_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
+                           ), 
+    visits_util_AM = colDef(name = "% Utilization (By Turns)",
+                                    headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                    format = colFormat(percent = TRUE, digits = 0),
+                                    style = function(value) {
+                                      if(!is.numeric(value)) return()
+                                     normalized <- (value - min(loc_dashboard_tbl$visits_util_AM, na.rm = TRUE))/
+                                       (max(loc_dashboard_tbl$visits_util_AM, na.rm = TRUE) - 
+                                          min(loc_dashboard_tbl$visits_util_AM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    dur_util_AM = colDef(name = "% Utilization (By Duration)",
+                                 headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                 format = colFormat(percent = TRUE),
+                                  style = function(value) {
+                                    if(!is.numeric(value)) return()
+                                     normalized <- (value - min(loc_dashboard_tbl$dur_util_AM, na.rm = TRUE))/
+                                       (max(loc_dashboard_tbl$dur_util_AM, na.rm = TRUE) - 
+                                          min(loc_dashboard_tbl$dur_util_AM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    avg_vol_PM = colDef(name = "Avg Weekday Volume",
+                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9")
+                           ),
+    visits_var_PM = colDef(name = "Variance from Target",
+                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9"),
+                           cell = data_bars(loc_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
+                           ), 
+    visits_util_PM = colDef(name = "% Utilization (By Turns)",
+                                    headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                    format = colFormat(percent = TRUE, digits = 0),
+                                    style = function(value) {
+                                      if(!is.numeric(value)) return()
+                                     normalized <- (value - min(loc_dashboard_tbl$visits_util_PM, na.rm = TRUE))/
+                                       (max(loc_dashboard_tbl$visits_util_PM, na.rm = TRUE) - 
+                                          min(loc_dashboard_tbl$visits_util_PM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    dur_util_PM = colDef(name = "% Utilization (By Duration)",
+                                 headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                 format = colFormat(percent = TRUE),
+                                  style = function(value) {
+                                    if(!is.numeric(value)) return()
+                                     normalized <- (value - min(loc_dashboard_tbl$dur_util_PM, na.rm = TRUE))/
+                                       (max(loc_dashboard_tbl$dur_util_PM, na.rm = TRUE) - 
+                                          min(loc_dashboard_tbl$dur_util_PM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")})
+    ),
+  details = function(index) {
+    htmltools::div(
+      h2(paste(paste0(as.character(loc_dashboard_tbl[index,c("Building Address")])," - ",
+                      as.character(loc_dashboard_tbl[index,c("Floor")])),
+               ": Total Rooms Available by Type")),
+      loc_room_summary_function(index),
+      h2(paste(paste0(as.character(loc_dashboard_tbl[index,c("Building Address")])," - ",
+                      as.character(loc_dashboard_tbl[index,c("Floor")])),
+               ": Utilizaiton by Hour (Includes ", input$select_location_visit, " visits)")),
+      loc_util_detail_function(index),
+      h2(paste(paste0(as.character(loc_dashboard_tbl[index,c("Building Address")])," - ",
+                      as.character(loc_dashboard_tbl[index,c("Floor")])),
+               ": Volume by Department")),
+      loc_volume_detail_function(index)
+    )
+    } # Close details
+
+  
+  )  # Close reactable
+  # ) # Close tagList
+  # ) # Close html tool
+    
+})
+
+```
+
+
+### Trending
+
+
+
+
+
+Utilization by Specialty
+===================================================================   
+
+Sidebar {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+```{r Sinai Logo Specialty, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("Mount_Sinai_Logo_H.png")
+```
+
+
+
+
+Utilization by Provider
+===================================================================   
+
+Sidebar {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+```{r Sinai Logo Provider, echo=FALSE, out.width = '80%'}
+knitr::include_graphics("Mount_Sinai_Logo_H.png")
+```
+
+
+<span style='font-size: 18px; color: #d80b8c'>**Data Filters**</span><br/>
+
+
+```{r Provider Data Filters, echo = FALSE, warning = FALSE, message = FALSE}
+
+site_dept_mapping <- unique(provider_util_turns_summary[,c("Campus","Campus.Specialty","Department","Provider")])
+
+# Provider Section Filter ------------------------------------------------------
+campus_choice <- sort(unique(site_dept_mapping$Campus))
+campus_default <- campus_choice[1]
+
+specialty_choice <- sort(unique((site_dept_mapping %>% filter(Campus == campus_default))$Campus.Specialty))
+specialty_default <- specialty_choice[1]
+
+provider_choice <- sort(unique((site_dept_mapping %>% 
+                                  filter(Campus == campus_default) %>%
+                                  filter(Campus.Specialty == specialty_default))$Provider))
+provider_default <- provider_choice
+
+
+pickerInput(inputId="select_campus", label = "Select Site:",
+            choices = campus_choice,
+            selected = campus_default,
+            multiple = TRUE,
+            options = pickerOptions(
+              liveSearch = TRUE,
+              actionsBox = TRUE,
+              selectedTextFormat = "count > 1",
+              countSelectedText = "{0}/{1} sites selected",
+              dropupAuto = FALSE),
+            choicesOpt = list(
+        style = rep_len("font-size: 75%; line-height: 1.6;", length(campus_choice))
+      )) # choices style)
+
+
+
+pickerInput(inputId="select_specialty", label = "Select Specialty:",
+            choices = specialty_choice,
+            selected = specialty_default,
+            multiple = TRUE,
+            options = pickerOptions(
+              liveSearch = TRUE,
+              actionsBox = TRUE,
+              selectedTextFormat = "count > 1",
+              countSelectedText = "{0}/{1} specialties selected",
+              dropupAuto = FALSE),
+            choicesOpt = list(
+        style = rep_len("font-size: 75%; line-height: 1.6;", length(specialty_choice))
+      )) # choices style)
+
+
+
+pickerInput(inputId="select_provider", label = "Select Provider:",
+            choices = provider_choice,
+            selected = provider_default,
+            multiple = TRUE,
+            options = pickerOptions(
+              liveSearch = TRUE,
+              actionsBox = TRUE,
+              selectedTextFormat = "count > 1",
+              countSelectedText = "{0}/{1} providers selected",
+              dropupAuto = FALSE),
+            choicesOpt = list(
+        style = rep_len("font-size: 75%; line-height: 1.6;", length(provider_choice))
+      )) # choices style)
+
+
+# Reporting Quarter Selection Filter -------------------------------------------
+reporting_provider_quarter <- as.character(unique(provider_util_turns_summary$Appt.YearQtr))
+reporting_provider_quarter_choice <- sort(reporting_provider_quarter)
+reporting_provider_quarter_default <- reporting_provider_quarter_choice[length(reporting_provider_quarter_choice)]
+
+
+pickerInput(inputId="select_provider_quarter", label = "Select Reporting Quarter:",
+            choices = reporting_provider_quarter_choice,
+            selected = reporting_provider_quarter_default,
+            multiple = FALSE,
+                choicesOpt = list(
+        style = rep_len("font-size: 75%; line-height: 1.6;", length(reporting_provider_quarter))
+      )) # choices style))
+
+
+# Visit Method Selection Filter ------------------------------------------------
+awesomeRadio(
+   inputId = "select_provider_visit",
+   label = "Select Visits to Include:", 
+    choices = c("ALL", "IN PERSON", "TELEHEALTH"),
+   selected = "IN PERSON",
+   status = "info"
+)
+
+
+# Rooms Assigned per Provider
+awesomeRadio(
+   inputId = "select_provider_room",
+   label = "Select Provider Room Assignment:",
+    choices = list("1 Room/Provider" = 1, "2 Rooms/Provider" = 2, "3 Rooms/Provider" = 3),
+   selected = 1,
+   status = "info"
+)
+
+
+actionButton("update_provider", "CLICK TO UPDATE", width = "80%")
+
+# Format Click to Update Button ------------------------------------------------
+tags$style(HTML("
+    #update_provider {
+    position: absolute;
+    left: 30px;
+    background: #E8E8E8;
+    color: black;
+    padding: 1em
+    position: center;
+    align: center;
+    margin: 0px auto;}"))
+
+
+
+# Update Dependent Inputs ------------------------------------------------------
+observeEvent(input$select_campus,{
+      specialty_choice <- sort(unique((site_dept_mapping %>% 
+                                         filter(Campus %in% input$select_campus))$Campus.Specialty))
+      
+      updatePickerInput(session,
+                        inputId = "select_specialty",
+                        choices = specialty_choice,
+                        selected = specialty_choice[1]
+      )
+  },
+  ignoreInit = TRUE,
+  ignoreNULL = FALSE)
+
+
+observeEvent(input$select_specialty,{
+      provider_choice <- sort(unique((site_dept_mapping %>% 
+                                         filter(Campus %in% input$select_campus) %>%
+                                         filter(Campus.Specialty %in% input$select_specialty))$Provider))
+      
+      updatePickerInput(session,
+                        inputId = "select_provider",
+                        choices = provider_choice,
+                        selected = provider_choice
+      )
+  },
+  ignoreInit = TRUE,
+  ignoreNULL = FALSE)
+
+```
+
+
+<br/>
+<br/>
+
+
+--------------------------------------------------------------------------------
+
+<span style='font-size: 18px; color: #d80b8c'>**Info**</span><br/>
+
+<!-- Review Provider cFTE Here:<br/> [MSHS Provider cFTE Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/Eb6YVlrJCsVFsiPYat_zz6wBXGNCMb7nlYUwKeDkPO58JA?e=YL7G1o) -->
+
+<!-- Review Provider Room Capacity Here:<br/> [MSHS Room Capacity Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/EbLQ0_ENVSBAvDqlyIDy0mMBfKN-OGtF5dJfVIqyaZh2rQ?e=sRX4tO) -->
+
+<!-- Review Location Room Capacity Here:<br/> [MSHS Room Capacity Grid](https://mtsinai.sharepoint.com/:x:/s/MountSinaiAmbulatory/EevOwg90-2FMj2D4iZlQY_oBrOgB-Z-P-AkRuaynxyjRng?e=slreNu) -->
+
+*Data Sources: Epic Clarity*<br/>
+<!-- <span style='font-size: 12px'>*- Epic Clarity for visit volume*</span><br/> -->
+<!-- <span style='font-size: 12px'>*- CPSC for worked RVUs*</span><br/>  -->
+<!-- <span style='font-size: 12px'>*- Vizient Inc./Vizient Data Services for productivity benchmarks*</span><br/> -->
+
+*For any questions, please contact <soyoun.kweon@mssm.edu>*
+
+
+```{r Reactive Datasets for Utilization by Provider, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Reactive function for filtering "locations_util_summary_merged"
+groupByFilters_provSummary <- function(dt, campus, specialty, provider, quarter, visit.method, rooms){
+  
+  result <- dt %>% 
+    filter(Campus %in% campus, Campus.Specialty %in% specialty, Provider %in% provider, 
+           as.character(Appt.YearQtr) %in% quarter, Visit.Method %in% visit.method) %>%
+    mutate(visits_var = avg_vol - (as.numeric(rooms)*Benchmark),
+           visits_util = round(avg_vol/(as.numeric(rooms)*Benchmark),2),
+           dur_util = ifelse(Session == "Day", round(avg_dur/(as.numeric(rooms)*8*60),2),
+                             round(avg_dur/(as.numeric(rooms)*4*60),2)))
+  return(result)
+  
+}
+
+
+# provUtilSummary <- reactive({
+#   groupByFilters_provSummary(provider_util_summary_merged,
+#                             input$select_campus, input$select_specialty, input$select_provider, 
+#                             input$select_provider_quarter, input$select_provider_visit)
+# })
+
+provUtilSummary <- eventReactive(list(input$update_provider),{
+  validate(
+      need(input$select_campus != "", "Please select site."),
+      need(input$select_specialty != "", "Please select specialty."),
+      need(input$select_provider != "", "Please select provider."),
+      need(input$select_provider_quarter != "", "Please select year and quarter."),
+      need(input$select_provider_visit != "", "Please select visit type.")
+    )
+    groupByFilters_provSummary(provider_util_summary_merged,
+                            input$select_campus, input$select_specialty, input$select_provider, 
+                            input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+  })
+
+
+# Reactive function for filtering provider utilization by hour 
+groupByFilters_provUtilDur <- function(dt, campus, specialty, provider, quarter, visit.method, rooms){
+  
+  result <- dt %>% 
+    filter(Campus %in% campus, Campus.Specialty %in% specialty, Provider %in% provider, 
+           as.character(Appt.YearQtr) %in% quarter, Visit.Method %in% visit.method) %>%
+    mutate(dur_util = round(avg_dur/(as.numeric(rooms)*60),2)*100,
+           space_need = ceiling(avg_dur/60))
+  
+  return(result)
+  
+}
+
+
+# provUtilDur <- reactive({
+#   groupByFilters_provUtilDur(prov_util_hour,
+#                             input$select_campus, input$select_specialty, input$select_provider, 
+#                             input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+# })
+
+provUtilDur <- eventReactive(list(input$update_provider),{
+  validate(
+      need(input$select_campus != "", "Please select a site."),
+      need(input$select_specialty != "", "Please select a specialty."),
+      need(input$select_provider != "", "Please select a provider."),
+      need(input$select_provider_quarter != "", "Please select a year-quarter."),
+      need(input$select_provider_visit != "", "Please select a visit type."),
+      need(input$select_provider_room != "", "Please select provider's room capacity.")
+    )
+    groupByFilters_provUtilDur(prov_util_hour,
+                            input$select_campus, input$select_specialty, input$select_provider, 
+                            input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+  })
+
+
+# Reactive function for filtering provider utilization by hour and visit type
+groupByFilters_provDurVisit <- function(dt, campus, specialty, provider, quarter, visit.method, rooms){
+  
+  if(visit.method == "ALL"){
+    result <- dt %>% 
+      filter(Campus %in% campus, Campus.Specialty %in% specialty, Provider %in% provider, 
+             as.character(Appt.YearQtr) %in% quarter) %>%
+      mutate(dur_util = round(avg_dur/(as.numeric(rooms)*60),2)*100)
+  } else{
+    result <- dt %>% 
+      filter(Campus %in% campus, Campus.Specialty %in% specialty, Provider %in% provider, 
+             as.character(Appt.YearQtr) %in% quarter, Visit.Method %in% visit.method) %>%
+      mutate(dur_util = round(avg_dur/(as.numeric(rooms)*60),2)*100)
+  }
+   
+  return(result)
+}
+
+
+# provUtilDurVisit <- reactive({
+#   groupByFilters_provDurVisit(prov_util_visit_type,
+#                             input$select_campus, input$select_specialty, input$select_provider, 
+#                             input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+# })
+  
+provUtilDurVisit <- eventReactive(list(input$update_provider),{
+  validate(
+      need(input$select_campus != "", "Please select a site."),
+      need(input$select_specialty != "", "Please select a specialty."),
+      need(input$select_provider != "", "Please select a provider."),
+      need(input$select_provider_quarter != "", "Please select a year-quarter."),
+      need(input$select_provider_visit != "", "Please select a visit type."),
+      need(input$select_provider_room != "", "Please select provider's room capacity.")
+    )
+    groupByFilters_provDurVisit(prov_util_visit_type,
+                            input$select_campus, input$select_specialty, input$select_provider, 
+                            input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+  })
+
+```
+
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+### Selected Quarter
+
+:::: {.blackbox data-latex=""}
+::: {.center data-latex=""}
+<span style='font-size: 16px;; color: #d80b8c'>**Metric Definitions:**</span><br/>
+<span style='font-size: 14px;'>-- **Average Weekday Volume:** Average of all working weekday (Mon-Fri) volumes</span><br/>
+<span style='font-size: 14px;'>-- **Volume Variance to Benchmark:** Difference between Average Weekday Volume and Expected Daily Volume Target based on total room count and visits/room/day benchmark^3^</span><br/>
+<span style='font-size: 12px;'>*^3^10 rooms available per day and 10 visits/room/day benchmark equals to 100 expected daily volume target; 120 average weekday volume results in 20 Volume Variance to Benchmark*</span><br/>
+<span style='font-size: 14px;'>-- **% Utilization (Visits per Room)** Average Weekday Volume per Room over Visits/Room/Day Benchmark</span><br/>
+<span style='font-size: 14px;'>-- **% Utilization (Visit Durations):** Total sum of scheduled visit durations over total room time available^4^</span><br/>
+<span style='font-size: 12px;'>*^4^Total room time available is calculated based on Total Rooms Available per Day x Total Working Hours per Day (10 rooms available per day x 8 working hours per day = 80 hours of room time available per day*</span>
+<!-- <span style='font-size: 16px;'>-- **% Utilization (Visit Durations):** Total sum of scheduled visit durations over total room time available with 20% adjustment factor to account for room turnovers and any non-physician contact activities that may happen in rooms^4^</span><br/> -->
+<!-- <span style='font-size: 14px;'>*^4^Total room time available is calculated based on Total Rooms Available per Day x Total Working Hours per Day (10 rooms available per day x 8 working hours per day = 80 hours of room time available per day*</span><br/> -->
+:::
+::::
+
+<br/>
+
+
+```{r Utilization by Provider Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+renderReactable({
+  
+  # total_rooms <- as.numeric(input$select_provider_room)
+  
+  # data <- provUtilSummary() 
+    # mutate(visits_var = avg_vol - (total_rooms*Benchmark),
+    #        visits_util = round(avg_vol/(total_rooms*Benchmark),2),
+    #        dur_util = ifelse(Session == "Day", round(avg_dur/(total_rooms*8*60),2),
+    #                          round(avg_dur/(total_rooms*4*60),2)))
+
+  # data <- provider_util_summary_merged %>%
+  #   filter(Campus == "MSBI") %>%
+  #   filter(Campus.Specialty == "Behavioral Health") %>%
+  #   filter(Appt.YearQtr == "2022 Q2") %>%
+  #   filter(Visit.Method == "IN PERSON") %>%
+  #   mutate(visits_var = avg_vol - (total_rooms*Benchmark),
+  #          visits_util = round(avg_vol/(total_rooms*Benchmark),2),
+  #          dur_util = ifelse(Session == "Day", round(avg_dur/(total_rooms*8*60),2),
+  #                            round(avg_dur/(total_rooms*4*60),2)))
+
+  prov_dashboard_tbl <- provUtilSummary() %>%
+    dplyr::select(-c("Appt.YearQtr","avg_dur","Visit.Method")) %>%
+    arrange(factor(Session, levels = c("Day","AM","PM"))) %>%
+    group_by(Campus, Campus.Specialty, Department) %>%
+    mutate(Benchmark = max(Benchmark, na.rm = TRUE)) %>%
+    ungroup() %>%
+    pivot_wider(names_from = Session,
+                values_from = c("avg_vol","visits_var","visits_util","dur_util")) %>%
+    dplyr::select(Campus, Campus.Specialty, Department, Provider, Benchmark, 
+                  avg_vol_Day, visits_var_Day, visits_util_Day, dur_util_Day,
+                  avg_vol_AM, visits_var_AM, visits_util_AM, dur_util_AM,
+                  avg_vol_PM, visits_var_PM, visits_util_PM, dur_util_PM)
+
+    # loc_dashboard_tbl[is.na(loc_dashboard_tbl)] <- 0
+  
+
+  prov_util_hour <- provUtilDur()
+  prov_util_visit_type <- provUtilDurVisit()
+  
+  
+  # Location Utilization by Hour Function -------------------------------------
+  days_cols <- c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000","#7030a0","#5753d0")
+
+    prov_util_hour_detail_function <- function(index){
+  # index = 2
+
+    # Utilization by Hour Graph
+    prov_util_hour %>%
+      filter(Campus == as.character(prov_dashboard_tbl[index, c("Campus")])) %>%
+      filter(Campus.Specialty == as.character(prov_dashboard_tbl[index, c("Campus.Specialty")])) %>%
+      filter(Provider == as.character(prov_dashboard_tbl[index, c("Provider")])) %>%
+      hchart('area',
+             hcaes(x = 'space_time', y = 'dur_util', group = 'Appt.Day')) %>%
+      hc_chart(
+        # plotBorderWidth = 1,
+               # borderColor = "#7f7f7f",
+               # borderRadius = 10,
+               # borderWidth = 1,
+               # backgroundColor = "#dddedd",
+               events = list(load = JS("function() {
+               this.series.forEach(function(series) {
+               if (series.name === 'Mon') {
+        series.update({
+          legendIndex: 1
+        });
+      }
+      if (series.name === 'Tue') {
+        series.update({
+          legendIndex: 2
+        });
+      }
+      if (series.name === 'Wed') {
+        series.update({
+          legendIndex: 3
+        });
+      }
+      if (series.name === 'Thu') {
+        series.update({
+          legendIndex: 4
+        });
+      }
+      if (series.name === 'Fri') {
+        series.update({
+          legendIndex: 5
+        });
+      }
+      if (series.name === 'Sat') {
+        series.update({
+          legendIndex: 6
+        });
+      }
+    });
+  }"))) %>%
+      hc_title(text = "Average Utiliaztion by Hour",
+               style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0(as.character(prov_dashboard_tbl[index,c("Campus")]), " ",
+                                as.character(prov_dashboard_tbl[index,c("Campus.Specialty")]), " - ",
+                                as.character(prov_dashboard_tbl[index,c("Provider")])),
+               style = list(fontWeight = 'bold', fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_colors(days_cols) %>%
+      hc_plotOptions(series = list(format = "{point.y}%", marker = list(symbol = "circle"), lineWidth = 2, fillOpacity = 0.1)) %>%
+      hc_yAxis(title = list(text = "% Utilization"),
+               max = max(100, 
+                         (prov_util_hour %>%
+                            filter(Campus == as.character(prov_dashboard_tbl[index, c("Campus")])) %>%
+                            filter(Campus.Specialty == as.character(prov_dashboard_tbl[index, c("Campus.Specialty")])) %>%
+                            filter(Provider == as.character(prov_dashboard_tbl[index, c("Provider")])))$dur_util),
+               labels = list(format = '{value}%'),
+               plotLines = list(list(color = "red", width = 2, value = 80, dashStyle = "dash"))) %>%
+      hc_xAxis(title = list(enabled = FALSE)) %>%
+      hc_legend(align = "center", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',color ='black', fontSize = "14px")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black",valueSuffix = '%') %>%
+      hc_annotations(list(labels = list(list(point = list(x = 11, y = 80, xAxis = 0, yAxis = 0), text = "80% Utilization"))))
+
+  }
+  
+  
+  prov_util_space_detail_function <- function(index){
+  # index = 2
+    # Space Required by Hour Graph
+    prov_util_hour %>%
+      filter(Campus == as.character(prov_dashboard_tbl[index, c("Campus")])) %>%
+      filter(Campus.Specialty == as.character(prov_dashboard_tbl[index, c("Campus.Specialty")])) %>%
+      filter(Provider == as.character(prov_dashboard_tbl[index, c("Provider")])) %>%
+      hchart('area',
+             hcaes(x = 'space_time', y = 'space_need', group = 'Appt.Day')) %>%
+      hc_chart(
+        # plotBorderWidth = 1,
+               # borderColor = "#7f7f7f",
+               # borderRadius = 10,
+               # borderWidth = 1,
+               # backgroundColor = "#dddedd",
+               events = list(load = JS("function() {
+               this.series.forEach(function(series) {
+               if (series.name === 'Mon') {
+        series.update({
+          legendIndex: 1
+        });
+      }
+      if (series.name === 'Tue') {
+        series.update({
+          legendIndex: 2
+        });
+      }
+      if (series.name === 'Wed') {
+        series.update({
+          legendIndex: 3
+        });
+      }
+      if (series.name === 'Thu') {
+        series.update({
+          legendIndex: 4
+        });
+      }
+      if (series.name === 'Fri') {
+        series.update({
+          legendIndex: 5
+        });
+      }
+      if (series.name === 'Sat') {
+        series.update({
+          legendIndex: 6
+        });
+      }
+    });
+  }"))) %>%
+      hc_title(text = "Average Rooms Required",
+               style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0(as.character(prov_dashboard_tbl[index,c("Campus")]), " ",
+                                as.character(prov_dashboard_tbl[index,c("Campus.Specialty")]), " - ",
+                             as.character(prov_dashboard_tbl[index,c("Provider")])),
+               style = list(fontWeight = 'bold', fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_colors(days_cols) %>%
+      hc_plotOptions(series = list(marker = list(symbol = "circle"), lineWidth = 2, fillOpacity = 0.1)) %>%
+      hc_yAxis(title = list(text = "Number of Rooms"), tickInterval = 1) %>%
+      hc_xAxis(title = list(enabled = FALSE)) %>%
+      hc_legend(align = "center", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',color ='black', fontSize = "14px")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+
+  }
+  
+  
+  prov_util_visit_detail_function <- function(index){
+  # index = 2
+    # Utilization by Visit Type
+    prov_util_visit_type %>%
+      filter(Campus == as.character(prov_dashboard_tbl[index, c("Campus")])) %>%
+      filter(Campus.Specialty == as.character(prov_dashboard_tbl[index, c("Campus.Specialty")])) %>%
+      filter(Provider == as.character(prov_dashboard_tbl[index, c("Provider")])) %>%
+      hchart('column',
+             hcaes(x = 'space_time', y = 'dur_util', group = 'Visit.Method'),
+             stacking = "normal",
+             dataLabels = list(enabled = TRUE, format = '{point.y}%')) %>%
+      hc_colors(c("#212070","#d80b8c")) %>%
+      hc_title(text = "Average Utiliaztion by Visit Type",
+               style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0(as.character(prov_dashboard_tbl[index,c("Campus")]), " ",
+                                as.character(prov_dashboard_tbl[index,c("Campus.Specialty")]), " - ",
+                             as.character(prov_dashboard_tbl[index,c("Provider")])),
+               style = list(fontWeight = 'bold', fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_plotOptions(series = list(format = "{point.y}%")) %>%
+      hc_yAxis(title = list(text = "% Utilization"),
+               labels = list(format = '{value}%')) %>%
+      hc_xAxis(title = list(enabled = FALSE)) %>%
+      hc_legend(align = "center", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',color ='black', fontSize = "14px")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black",valueSuffix = '%')
+
+  }
+  
+  
+  
+  
+  # ColorBrewer-inspired 3-color scale
+  RdBuYl <- function(x) rgb(colorRamp(c('#c62c34', '#d65440', '#d88359', '#ffffff', '#a0bfd9', '#76b8de', '#36a1d6'))(x), maxColorValue = 255)
+  RdYlGrn <- function(x) rgb(colorRamp(c("#ff0000", "#ff8080", "#ffcc00", "#ffeb99", "#ffffff","#4dff4d", "#00b800"))(x), maxColorValue = 255)
+  
+  
+  reactable(
+    prov_dashboard_tbl,
+    # groupBy = c("Campus","Campus.Specialty"),
+    # defaultPageSize = 5,
+    # elementId = "site-grouping-table",
+    style = list(fontFamily = 'Calibri',
+                 fontSize = '14px'),
+    defaultColDef = colDef(align = "center", 
+                           headerStyle = list(fontWeight = "Bold", fontSize = "12px"),
+                           headerClass = "bar-sort-header"),   
+    highlight = TRUE,
+    # filterable = TRUE,
+    pagination = FALSE,
+    # height = 800,
+    wrap = TRUE,
+    bordered = TRUE,
+    columnGroups = list(
+    colGroup(name = "Day", columns = c("avg_vol_Day", "visits_var_Day", "visits_util_Day", "dur_util_Day"), 
+             headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px")),
+    colGroup(name = "AM (~12PM)", columns = c("avg_vol_AM", "visits_var_AM", "visits_util_AM", "dur_util_AM"),
+              headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px")),
+    colGroup(name = "PM (12PM~)", columns = c("avg_vol_PM", "visits_var_PM", "visits_util_PM", "dur_util_PM"),
+              headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"))
+  ),
+  columns = list(
+    Campus = colDef(
+      name = "Site",
+      minWidth = 100,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px"),
+      align = "left"
+    ),
+    Campus.Specialty = colDef(
+      name= "Specialty",
+      minWidth = 200,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px"),
+      align = "left"
+    ),
+    Department = colDef(
+      minWidth = 200,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px"),
+      align = "left"
+    ),
+    Provider = colDef(
+      minWidth = 200,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px"),
+      align = "left"
+    ),
+    Benchmark = colDef(
+      name = "Benchmark Visits/Room/Day",
+      minWidth = 90,
+      headerStyle = list(fontWeight = "Bold", fontSize = "14px")
+    ),
+    avg_vol_Day = colDef(name = "Avg Weekday Volume",
+                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9")
+                           ),
+    visits_var_Day = colDef(name = "Variance from Target",
+                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9"),
+                           cell = data_bars(prov_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
+                           ), 
+    visits_util_Day = colDef(name = "% Utilization (By Turns)",
+                                    headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                    format = colFormat(percent = TRUE, digits = 0),
+                                    style = function(value) {
+                                      if(!is.numeric(value)) return()
+                                     normalized <- (value - min(prov_dashboard_tbl$visits_util_Day, na.rm = TRUE))/
+                                       (max(prov_dashboard_tbl$visits_util_Day, na.rm = TRUE) - 
+                                          min(prov_dashboard_tbl$visits_util_Day, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    dur_util_Day = colDef(name = "% Utilization (By Duration)",
+                                 headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                 format = colFormat(percent = TRUE),
+                                  style = function(value) {
+                                    if(!is.numeric(value)) return()
+                                     normalized <- (value - min(prov_dashboard_tbl$dur_util_Day, na.rm = TRUE))/
+                                       (max(prov_dashboard_tbl$dur_util_Day, na.rm = TRUE) - 
+                                          min(prov_dashboard_tbl$dur_util_Day, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    avg_vol_AM = colDef(name = "Avg Weekday Volume",
+                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9")
+                           ),
+    visits_var_AM = colDef(name = "Variance from Target",
+                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9"),
+                           cell = data_bars(prov_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
+                           ), 
+    visits_util_AM = colDef(name = "% Utilization (By Turns)",
+                                    headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                    format = colFormat(percent = TRUE, digits = 0),
+                                    style = function(value) {
+                                      if(!is.numeric(value)) return()
+                                     normalized <- (value - min(prov_dashboard_tbl$visits_util_AM, na.rm = TRUE))/
+                                       (max(prov_dashboard_tbl$visits_util_AM, na.rm = TRUE) - 
+                                          min(prov_dashboard_tbl$visits_util_AM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    dur_util_AM = colDef(name = "% Utilization (By Duration)",
+                                 headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                 format = colFormat(percent = TRUE),
+                                  style = function(value) {
+                                    if(!is.numeric(value)) return()
+                                     normalized <- (value - min(prov_dashboard_tbl$dur_util_AM, na.rm = TRUE))/
+                                       (max(prov_dashboard_tbl$dur_util_AM, na.rm = TRUE) - 
+                                          min(prov_dashboard_tbl$dur_util_AM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    avg_vol_PM = colDef(name = "Avg Weekday Volume",
+                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9")
+                           ),
+    visits_var_PM = colDef(name = "Variance from Target",
+                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                           # style = list(background = "#EBEBF9"),
+                           cell = data_bars(prov_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
+                           ), 
+    visits_util_PM = colDef(name = "% Utilization (By Turns)",
+                                    headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                    format = colFormat(percent = TRUE, digits = 0),
+                                    style = function(value) {
+                                      if(!is.numeric(value)) return(list(background = "black"))
+                                     normalized <- (value - min(prov_dashboard_tbl$visits_util_PM, na.rm = TRUE))/
+                                       (max(prov_dashboard_tbl$visits_util_PM, na.rm = TRUE) - 
+                                          min(prov_dashboard_tbl$visits_util_PM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")}),
+    dur_util_PM = colDef(name = "% Utilization (By Duration)",
+                                 headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
+                                 format = colFormat(percent = TRUE),
+                                  style = function(value) {
+                                    if(value == 0) return(list(background = "black"))
+                                     normalized <- (value - min(prov_dashboard_tbl$dur_util_PM, na.rm = TRUE))/
+                                       (max(prov_dashboard_tbl$dur_util_PM, na.rm = TRUE) - 
+                                          min(prov_dashboard_tbl$dur_util_PM, na.rm = TRUE))
+                                      color <- RdYlGrn(normalized)
+                                      list(background = color,
+                                           fontSize = "14px",
+                                           fontWeight = "Bold")})
+    ),
+  details = function(index) {
+    htmltools::div(
+      h2(paste(paste0(as.character(prov_dashboard_tbl[index,c("Campus")]), " ",
+                      as.character(prov_dashboard_tbl[index,c("Campus.Specialty")]), " - ",
+                      as.character(prov_dashboard_tbl[index,c("Provider")]))
+               # ": Utilizaiton by Hour (Includes ", input$select_provider_visit, " visits)")
+         )),
+      hw_grid(prov_util_hour_detail_function(index), prov_util_space_detail_function(index), prov_util_visit_detail_function(index))
+    )
+    } # Close details
+  
+  )  # Close reactable
+  # ) # Close tagList
+  # ) # Close html tool
+    
+})
+
+```
+
+
