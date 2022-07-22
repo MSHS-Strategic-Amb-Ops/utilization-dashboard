@@ -4,6 +4,8 @@ runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
     theme: readable
+    orientation: columns
+    vertical_layout: fill
 ---
 
 <style type="text/css">
