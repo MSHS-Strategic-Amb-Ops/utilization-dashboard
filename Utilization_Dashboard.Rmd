@@ -1496,39 +1496,39 @@ provUtilDurVisit <- eventReactive(list(input$update_provider),{
   })
 
 
-# Reactive function for filtering provider booked and filled rate 
-groupByFilters_provSlot <- function(dt, campus, specialty, provider, quarter, ){
-  
-  result <- dt %>% 
-    filter(Campus %in% campus, Campus.Specialty %in% specialty, Provider %in% provider, 
-           as.character(Appt.YearQtr) %in% quarter) %>%
-    mutate(booked_rate = round(avg_booked/avg_available,2)*100,
-           arrived_rate = round(avg_arrived/avg_available,2)*100,)
-  
-  return(result)
-  
-}
-
-
-# provUtilDur <- reactive({
-#   groupByFilters_provUtilDur(prov_util_hour,
+# # Reactive function for filtering provider booked and filled rate 
+# groupByFilters_provSlot <- function(dt, campus, specialty, provider, quarter, ){
+#   
+#   result <- dt %>% 
+#     filter(Campus %in% campus, Campus.Specialty %in% specialty, Provider %in% provider, 
+#            as.character(Appt.YearQtr) %in% quarter) %>%
+#     mutate(booked_rate = round(avg_booked/avg_available,2)*100,
+#            arrived_rate = round(avg_arrived/avg_available,2)*100,)
+#   
+#   return(result)
+#   
+# }
+# 
+# 
+# # provUtilDur <- reactive({
+# #   groupByFilters_provUtilDur(prov_util_hour,
+# #                             input$select_campus, input$select_specialty, input$select_provider, 
+# #                             input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+# # })
+# 
+# provSlot <- eventReactive(list(input$update_provider),{
+#   validate(
+#       need(input$select_campus != "", "Please select a site."),
+#       need(input$select_specialty != "", "Please select a specialty."),
+#       need(input$select_provider != "", "Please select a provider."),
+#       need(input$select_provider_quarter != "", "Please select a year-quarter."),
+#       need(input$select_provider_visit != "", "Please select a visit type."),
+#       need(input$select_provider_room != "", "Please select provider's room capacity.")
+#     )
+#     groupByFilters_provUtilDur(prov_,
 #                             input$select_campus, input$select_specialty, input$select_provider, 
 #                             input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
-# })
-
-provSlot <- eventReactive(list(input$update_provider),{
-  validate(
-      need(input$select_campus != "", "Please select a site."),
-      need(input$select_specialty != "", "Please select a specialty."),
-      need(input$select_provider != "", "Please select a provider."),
-      need(input$select_provider_quarter != "", "Please select a year-quarter."),
-      need(input$select_provider_visit != "", "Please select a visit type."),
-      need(input$select_provider_room != "", "Please select provider's room capacity.")
-    )
-    groupByFilters_provUtilDur(prov_,
-                            input$select_campus, input$select_specialty, input$select_provider, 
-                            input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
-  })
+#   })
 
 ```
 
