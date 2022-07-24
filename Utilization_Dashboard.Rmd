@@ -327,23 +327,23 @@ not_all_na <- function(x) all(!is.na(x)) # Exclude columns with All NAs
 
 ```{r Data Tables Import, echo = FALSE, warning = FALSE, message = FALSE}
 
-# Local Run --------------------------------------------------------------------
-locations_util_turns_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_merged.rds")
-locations_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_merged.rds")
-
-locations_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_summary.rds")
-locations_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_summary.rds")
-
-
-# Utilization by Provider Tables -----------------------------------------------
-provider_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_merged.rds")
-
-provider_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_turns_summary.rds")
-provider_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_summary.rds")
-
-
-# Slolt by Provider Table -------------------------------------------------------
-provider_slot_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_slot_summary.rds")
+# # Local Run --------------------------------------------------------------------
+# locations_util_turns_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_merged.rds")
+# locations_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_merged.rds")
+# 
+# locations_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_summary.rds")
+# locations_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_summary.rds")
+# 
+# 
+# # Utilization by Provider Tables -----------------------------------------------
+# provider_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_merged.rds")
+# 
+# provider_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_turns_summary.rds")
+# provider_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_summary.rds")
+# 
+# 
+# # Slolt by Provider Table -------------------------------------------------------
+# provider_slot_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_slot_summary.rds")
 
 # Room Inventory ---------------------------------------------------------------
 # pt_rooms_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/pt_rooms_summary.rds")
@@ -351,23 +351,23 @@ provider_slot_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiative
 # 
 # 
 # 
-# # Github Run -------------------------------------------------------------------
-# locations_util_turns_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_merged.rds")
-# locations_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_merged.rds")
-# 
-# locations_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_summary.rds")
-# locations_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_summary.rds")
-# 
-# 
-# # Utilization by Provider Tables -----------------------------------------------
-# provider_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_merged.rds")
-# 
-# provider_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_turns_summary.rds")
-# provider_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_summary.rds")
-# 
-# 
-# # Room Inventory ---------------------------------------------------------------
-# pt_rooms_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/pt_rooms_summary.rds")
+# Github Run -------------------------------------------------------------------
+locations_util_turns_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_merged.rds")
+locations_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_merged.rds")
+
+locations_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_summary.rds")
+locations_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_summary.rds")
+
+
+# Utilization by Provider Tables -----------------------------------------------
+provider_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_merged.rds")
+
+provider_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_turns_summary.rds")
+provider_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_summary.rds")
+
+
+# Room Inventory ---------------------------------------------------------------
+pt_rooms_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/pt_rooms_summary.rds")
 
 ```
 
@@ -427,9 +427,9 @@ prov_util_visit_type <- provider_util_dur_merged %>%
 
 ```{r Provider Booked and Filled Rates, echo = FALSE, warning = FALSE, message = FALSE}
 
-prov_slot_day <- provider_slot_summary %>%
-  mutate(booked_rate = round(avg_booked/avg_available,2)*100,
-         filled_Rate = round(avg_arrived/avg_available,2)*100) 
+# prov_slot_day <- provider_slot_summary %>%
+#   mutate(booked_rate = round(avg_booked/avg_available,2)*100,
+#          filled_Rate = round(avg_arrived/avg_available,2)*100) 
 
 ```
 
