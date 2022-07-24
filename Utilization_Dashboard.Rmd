@@ -328,43 +328,46 @@ not_all_na <- function(x) all(!is.na(x)) # Exclude columns with All NAs
 ```{r Data Tables Import, echo = FALSE, warning = FALSE, message = FALSE}
 
 # Local Run --------------------------------------------------------------------
-# locations_util_turns_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_merged.rds")
-# locations_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_merged.rds")
-# 
-# locations_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_summary.rds")
-# locations_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_summary.rds")
-# 
-# 
-# # Utilization by Provider Tables -----------------------------------------------
-# provider_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_merged.rds")
-# 
-# provider_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_turns_summary.rds")
-# provider_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_summary.rds")
-# 
-# 
-# # Room Inventory ---------------------------------------------------------------
-# pt_rooms_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/pt_rooms_summary.rds")
+locations_util_turns_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_merged.rds")
+locations_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_merged.rds")
 
-
-
-
-# Github Run -------------------------------------------------------------------
-locations_util_turns_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_merged.rds")
-locations_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_merged.rds")
-
-locations_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_summary.rds")
-locations_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_summary.rds")
+locations_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_summary.rds")
+locations_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_summary.rds")
 
 
 # Utilization by Provider Tables -----------------------------------------------
-provider_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_merged.rds")
+provider_util_dur_merged <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_merged.rds")
 
-provider_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_turns_summary.rds")
-provider_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_summary.rds")
+provider_util_turns_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_turns_summary.rds")
+provider_util_dur_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_summary.rds")
 
+
+# Slolt by Provider Table -------------------------------------------------------
+provider_slot_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_slot_summary.rds")
 
 # Room Inventory ---------------------------------------------------------------
-pt_rooms_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/pt_rooms_summary.rds")
+# pt_rooms_summary <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/pt_rooms_summary.rds")
+# 
+# 
+# 
+# 
+# # Github Run -------------------------------------------------------------------
+# locations_util_turns_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_merged.rds")
+# locations_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_merged.rds")
+# 
+# locations_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_turns_summary.rds")
+# locations_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/locations_util_dur_summary.rds")
+# 
+# 
+# # Utilization by Provider Tables -----------------------------------------------
+# provider_util_dur_merged <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_merged.rds")
+# 
+# provider_util_turns_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_turns_summary.rds")
+# provider_util_dur_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/provider_util_dur_summary.rds")
+# 
+# 
+# # Room Inventory ---------------------------------------------------------------
+# pt_rooms_summary <- readRDS("/nfs/data/Applications/Ambulatory/Quarterly_Data/pt_rooms_summary.rds")
 
 ```
 
@@ -418,6 +421,15 @@ prov_util_visit_type <- provider_util_dur_merged %>%
         summarise(avg_dur = mean(avg_dur)) %>%
         arrange(space_time) 
         # mutate(dur_util = round(avg_dur/(total_rooms*60),2)*100)
+
+```
+
+
+```{r Provider Booked and Filled Rates, echo = FALSE, warning = FALSE, message = FALSE}
+
+prov_slot_day <- provider_slot_summary %>%
+  mutate(booked_rate = round(avg_booked/avg_available,2)*100,
+         filled_Rate = round(avg_arrived/avg_available,2)*100) 
 
 ```
 
@@ -682,7 +694,7 @@ renderReactable({
                   avg_vol_AM, visits_var_AM, visits_util_AM, dur_util_AM,
                   avg_vol_PM, visits_var_PM, visits_util_PM, dur_util_PM)
 
-    # loc_dashboard_tbl[is.na(loc_dashboard_tbl)] <- 0
+  loc_dashboard_tbl[is.na(loc_dashboard_tbl)] <- 0
   
   
   # Room Count Summary Function ------------------------------------------------
@@ -991,11 +1003,89 @@ renderReactable({
   
   
   # ColorBrewer-inspired 3-color scale
-  RdBuYl <- function(x) rgb(colorRamp(c('#c62c34', '#d65440', '#d88359', '#ffffff', '#a0bfd9', '#76b8de', '#36a1d6'))(x), maxColorValue = 255)
-  RdYlGrn <- function(x) rgb(colorRamp(c("#ff0000", "#ff8080", "#ffcc00", "#ffeb99", "#ffffff","#4dff4d", "#00b800"))(x), maxColorValue = 255)
+  # RdBuYl <- function(x) rgb(colorRamp(c('#c62c34', '#d65440', '#d88359', '#ffffff', '#a0bfd9', '#76b8de', '#36a1d6'))(x), maxColorValue = 255)
+  # RdYlGrn <- function(x) rgb(colorRamp(c("#ff0000", "#ff8080", "#ffcc00", "#ffeb99", "#ffffff","#4dff4d", "#00b800"))(x), maxColorValue = 255)
   
-  c("red", "wheat", "#00b800")
+  vol_column <- function(maxWidth = NULL, class = NULL, header_color = NULL, ...) {
+    colDef(
+      cell = function(value) {
+        if (value <= 0.01) "  \u2013 "
+        else value
+    },
+      maxWidth = maxWidth,
+      headerStyle = list(background = header_color, color = "white", fontWeight = "Bold", fontSize = "14px"),
+      class = paste("cell number", class),
+      style = function(value) {
+        # Lighter color for <1%
+        if (value <= 0.01) {
+          list(color = "#aaa", borderLeft = "1px solid rgb(184,184,184)")
+          } else {
+            list(color = "#111", borderLeft = "1px solid rgb(184,184,184)")
+          } 
+        },
+      ...
+    )
+  }
   
+  
+  vol_var_column <- function(maxWidth = NULL, class = NULL, header_color = NULL, ...) {
+    colDef(
+      cell = function(value) {
+        if (value == 100000) "  \u2013 "
+        else value
+    },
+      maxWidth = maxWidth,
+      headerStyle = list(background = header_color, color = "white", fontWeight = "Bold", fontSize = "14px"),
+      class = paste("cell number", class),
+      style = function(value) {
+        # Lighter color for <1%
+        if (value == 100000) {
+          list(color = "#aaa")
+          } else if (value < 0){
+            list(color = "#e00000", fontWeight = "Bold")
+          } else {
+            list(color = "#008000", fontWeight = "Bold")
+          }
+        },
+      ...
+    )
+    }
+  
+  util_column <- function(maxWidth = NULL, class = NULL, header_color = NULL, ...) {
+    colDef(
+      cell = format_pct,
+      maxWidth = maxWidth,
+      headerStyle = list(background = header_color, color = "white", fontWeight = "Bold", fontSize = "14px"),
+      class = paste("cell number", class),
+      style = function(value) {
+        # Lighter color for <1%
+        if (value <= 0.01) {
+          list(color = "#aaa")
+          } else if (value >= 1) {
+            list(color = "#111", fontWeight = "Bold", background = util_pct_color(1))
+          } else {
+            list(color = "#111", fontWeight = "Bold", background = util_pct_color(value))
+            }
+        },
+      ...
+    )
+    }
+  
+  format_pct <- function(value) {
+    if (value <= 0.01) "  \u2013 "    # en dash for 0%
+    # else if (value == 1) "\u2713"  # checkmark for 100%
+    else formatC(paste0(round(value * 100), "%"), width = 4)
+    }
+  
+  make_color_pal <- function(colors, bias = 1) {
+    get_color <- colorRamp(colors, bias = bias)
+    function(x) rgb(get_color(x), maxColorValue = 255)
+  }
+  
+  util_pct_color <- make_color_pal(c("#fc8d59", "#ffffbf","#5cd65c"), bias = 2)
+   
+   
+  # Table Output 
   reactable(
     loc_dashboard_tbl,
     # groupBy = c("Campus","Campus.Specialty"),
@@ -1041,105 +1131,18 @@ renderReactable({
       minWidth = 90,
       headerStyle = list(fontWeight = "Bold", fontSize = "14px")
     ),
-    avg_vol_Day = colDef(name = "Avg Weekday Volume",
-                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9")
-                           ),
-    visits_var_Day = colDef(name = "Variance from Target",
-                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9"),
-                           cell = data_bars(loc_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
-                           ), 
-    visits_util_Day = colDef(name = "% Utilization (By Turns)",
-                                    headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                    format = colFormat(percent = TRUE, digits = 0),
-                                    style = function(value) {
-                                      if(!is.numeric(value)) return()
-                                     normalized <- (value - min(loc_dashboard_tbl$visits_util_Day, na.rm = TRUE))/
-                                       (max(loc_dashboard_tbl$visits_util_Day, na.rm = TRUE) - 
-                                          min(loc_dashboard_tbl$visits_util_Day, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    dur_util_Day = colDef(name = "% Utilization (By Duration)",
-                                 headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                 format = colFormat(percent = TRUE),
-                                  style = function(value) {
-                                    if(!is.numeric(value)) return()
-                                     normalized <- (value - min(loc_dashboard_tbl$dur_util_Day, na.rm = TRUE))/
-                                       (max(loc_dashboard_tbl$dur_util_Day, na.rm = TRUE) - 
-                                          min(loc_dashboard_tbl$dur_util_Day, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    avg_vol_AM = colDef(name = "Avg Weekday Volume",
-                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9")
-                           ),
-    visits_var_AM = colDef(name = "Variance from Target",
-                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9"),
-                           cell = data_bars(loc_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
-                           ), 
-    visits_util_AM = colDef(name = "% Utilization (By Turns)",
-                                    headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                    format = colFormat(percent = TRUE, digits = 0),
-                                    style = function(value) {
-                                      if(!is.numeric(value)) return()
-                                     normalized <- (value - min(loc_dashboard_tbl$visits_util_AM, na.rm = TRUE))/
-                                       (max(loc_dashboard_tbl$visits_util_AM, na.rm = TRUE) - 
-                                          min(loc_dashboard_tbl$visits_util_AM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    dur_util_AM = colDef(name = "% Utilization (By Duration)",
-                                 headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                 format = colFormat(percent = TRUE),
-                                  style = function(value) {
-                                    if(!is.numeric(value)) return()
-                                     normalized <- (value - min(loc_dashboard_tbl$dur_util_AM, na.rm = TRUE))/
-                                       (max(loc_dashboard_tbl$dur_util_AM, na.rm = TRUE) - 
-                                          min(loc_dashboard_tbl$dur_util_AM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    avg_vol_PM = colDef(name = "Avg Weekday Volume",
-                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9")
-                           ),
-    visits_var_PM = colDef(name = "Variance from Target",
-                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9"),
-                           cell = data_bars(loc_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
-                           ), 
-    visits_util_PM = colDef(name = "% Utilization (By Turns)",
-                                    headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                    format = colFormat(percent = TRUE, digits = 0),
-                                    style = function(value) {
-                                      if(!is.numeric(value)) return()
-                                     normalized <- (value - min(loc_dashboard_tbl$visits_util_PM, na.rm = TRUE))/
-                                       (max(loc_dashboard_tbl$visits_util_PM, na.rm = TRUE) - 
-                                          min(loc_dashboard_tbl$visits_util_PM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    dur_util_PM = colDef(name = "% Utilization (By Duration)",
-                                 headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                 format = colFormat(percent = TRUE),
-                                  style = function(value) {
-                                    if(!is.numeric(value)) return()
-                                     normalized <- (value - min(loc_dashboard_tbl$dur_util_PM, na.rm = TRUE))/
-                                       (max(loc_dashboard_tbl$dur_util_PM, na.rm = TRUE) - 
-                                          min(loc_dashboard_tbl$dur_util_PM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")})
+    avg_vol_Day = vol_column(name = "Avg Weekday Volume", header_color = "#221f72"),
+    visits_var_Day = vol_var_column(name = "Variance from Target", header_color = "#221f72"),
+    visits_util_Day = util_column(name = "% Utilization (By Turns)", class = "border-left", header_color = "#221f72"),
+    dur_util_Day = util_column(name = "% Utilization (By Duration)", class = "border-left", header_color = "#221f72"),
+    avg_vol_AM = vol_column(name = "Avg Weekday Volume", header_color = "#d80b8c"),
+    visits_var_AM = vol_var_column(name = "Variance from Target", header_color = "#d80b8c"),
+    visits_util_AM = util_column(name = "% Utilization (By Turns)", class = "border-left", header_color = "#d80b8c"),
+    dur_util_AM = util_column(name = "% Utilization (By Duration)", class = "border-left", header_color = "#d80b8c"),
+    avg_vol_PM = vol_column(name = "Avg Weekday Volume", header_color = "#00aeef"),
+    visits_var_PM = vol_var_column(name = "Variance from Target", header_color = "#00aeef"),
+    visits_util_PM = util_column(name = "% Utilization (By Turns)", class = "border-left", header_color = "#00aeef"),
+    dur_util_PM = util_column(name = "% Utilization (By Duration)", class = "border-left", header_color = "#00aeef")
     ),
   details = function(index) {
     htmltools::div(
@@ -1155,7 +1158,7 @@ renderReactable({
                       as.character(loc_dashboard_tbl[index,c("Floor")])),
                ": Volume by Department")),
       loc_volume_detail_function(index),
-      h2("")
+      h2(" ")
     )
     } # Close details
 
@@ -1492,6 +1495,41 @@ provUtilDurVisit <- eventReactive(list(input$update_provider),{
                             input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
   })
 
+
+# Reactive function for filtering provider booked and filled rate 
+groupByFilters_provSlot <- function(dt, campus, specialty, provider, quarter, ){
+  
+  result <- dt %>% 
+    filter(Campus %in% campus, Campus.Specialty %in% specialty, Provider %in% provider, 
+           as.character(Appt.YearQtr) %in% quarter) %>%
+    mutate(booked_rate = round(avg_booked/avg_available,2)*100,
+           arrived_rate = round(avg_arrived/avg_available,2)*100,)
+  
+  return(result)
+  
+}
+
+
+# provUtilDur <- reactive({
+#   groupByFilters_provUtilDur(prov_util_hour,
+#                             input$select_campus, input$select_specialty, input$select_provider, 
+#                             input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+# })
+
+provSlot <- eventReactive(list(input$update_provider),{
+  validate(
+      need(input$select_campus != "", "Please select a site."),
+      need(input$select_specialty != "", "Please select a specialty."),
+      need(input$select_provider != "", "Please select a provider."),
+      need(input$select_provider_quarter != "", "Please select a year-quarter."),
+      need(input$select_provider_visit != "", "Please select a visit type."),
+      need(input$select_provider_room != "", "Please select provider's room capacity.")
+    )
+    groupByFilters_provUtilDur(prov_,
+                            input$select_campus, input$select_specialty, input$select_provider, 
+                            input$select_provider_quarter, input$select_provider_visit, input$select_provider_room)
+  })
+
 ```
 
 
@@ -1523,23 +1561,21 @@ renderReactable({
   
   # total_rooms <- as.numeric(input$select_provider_room)
   
-  # data <- provUtilSummary() 
-    # mutate(visits_var = avg_vol - (total_rooms*Benchmark),
-    #        visits_util = round(avg_vol/(total_rooms*Benchmark),2),
-    #        dur_util = ifelse(Session == "Day", round(avg_dur/(total_rooms*8*60),2),
-    #                          round(avg_dur/(total_rooms*4*60),2)))
+  data <- provUtilSummary()
 
   # data <- provider_util_summary_merged %>%
   #   filter(Campus == "MSBI") %>%
   #   filter(Campus.Specialty == "Behavioral Health") %>%
   #   filter(Appt.YearQtr == "2022 Q2") %>%
   #   filter(Visit.Method == "IN PERSON") %>%
-  #   mutate(visits_var = avg_vol - (total_rooms*Benchmark),
-  #          visits_util = round(avg_vol/(total_rooms*Benchmark),2),
-  #          dur_util = ifelse(Session == "Day", round(avg_dur/(total_rooms*8*60),2),
-  #                            round(avg_dur/(total_rooms*4*60),2)))
+  #   mutate(visits_var = ifelse(avg_vol > 0, avg_vol - (1*Benchmark), 100000),
+  #          visits_util = round(avg_vol/(1*Benchmark),2),
+  #          dur_util = ifelse(Session == "Day", round(avg_dur/(1*8*60),2),
+  #                            round(avg_dur/(1*4*60),2)))
+  
 
-  prov_dashboard_tbl <- provUtilSummary() %>%
+  prov_dashboard_tbl <- data %>% 
+    # provUtilSummary() %>%
     dplyr::select(-c("Appt.YearQtr","avg_dur","Visit.Method")) %>%
     arrange(factor(Session, levels = c("Day","AM","PM"))) %>%
     group_by(Campus, Campus.Specialty, Department) %>%
@@ -1552,8 +1588,12 @@ renderReactable({
                   avg_vol_AM, visits_var_AM, visits_util_AM, dur_util_AM,
                   avg_vol_PM, visits_var_PM, visits_util_PM, dur_util_PM)
 
-    # loc_dashboard_tbl[is.na(loc_dashboard_tbl)] <- 0
+  prov_dashboard_tbl[is.na(prov_dashboard_tbl)] <- 0
   
+  util_cols <- c("visits_util_Day", "dur_util_Day", "visits_util_AM", "dur_util_AM", "visits_util_PM", "dur_util_PM")
+  prov_dashboard_tbl[util_cols] <- sapply(prov_dashboard_tbl[util_cols],as.numeric)
+  
+
 
   prov_util_hour <- provUtilDur()
   prov_util_visit_type <- provUtilDurVisit()
@@ -1727,15 +1767,92 @@ renderReactable({
       hc_tooltip(shared = TRUE, borderColor = "black",valueSuffix = '%')
 
   }
-  
-  
-  
+
   
   # ColorBrewer-inspired 3-color scale
-  RdBuYl <- function(x) rgb(colorRamp(c('#c62c34', '#d65440', '#d88359', '#ffffff', '#a0bfd9', '#76b8de', '#36a1d6'))(x), maxColorValue = 255)
-  RdYlGrn <- function(x) rgb(colorRamp(c("#ff0000", "#ff8080", "#ffcc00", "#ffeb99", "#ffffff","#4dff4d", "#00b800"))(x), maxColorValue = 255)
+  # RdBuYl <- function(x) rgb(colorRamp(c('#c62c34', '#d65440', '#d88359', '#ffffff', '#a0bfd9', '#76b8de', '#36a1d6'))(x), maxColorValue = 255)
+  # RdYlGrn <- function(x) rgb(colorRamp(c("#ff0000", "#ff8080", "#ffcc00", "#ffeb99", "#ffffff","#4dff4d", "#00b800"))(x), maxColorValue = 255)
   
+  # Formatting Criteria for Utiliztion Columns 
+  vol_column <- function(maxWidth = NULL, class = NULL, header_color = NULL, ...) {
+    colDef(
+      cell = function(value) {
+        if (value <= 0.01) "  \u2013 "
+        else value
+    },
+      maxWidth = maxWidth,
+      headerStyle = list(background = header_color, color = "white", fontWeight = "Bold", fontSize = "14px"),
+      class = paste("cell number", class),
+      style = function(value) {
+        # Lighter color for <1%
+        if (value <= 0.01) {
+          list(color = "#aaa", borderLeft = "1px solid rgb(184,184,184)")
+          } else {
+            list(color = "#111", borderLeft = "1px solid rgb(184,184,184)")
+          } 
+        },
+      ...
+    )
+  }
   
+  vol_var_column <- function(maxWidth = NULL, class = NULL, header_color = NULL, ...) {
+    colDef(
+      cell = function(value) {
+        if (value == 100000) "  \u2013 "
+        else value
+    },
+      maxWidth = maxWidth,
+      headerStyle = list(background = header_color, color = "white", fontWeight = "Bold", fontSize = "14px"),
+      class = paste("cell number", class),
+      style = function(value) {
+        # Lighter color for <1%
+        if (value == 100000) {
+          list(color = "#aaa")
+          } else if (value < 0){
+            list(color = "#e00000", fontWeight = "Bold")
+          } else {
+            list(color = "#008000", fontWeight = "Bold")
+          }
+        },
+      ...
+    )
+    }
+  
+  util_column <- function(maxWidth = NULL, class = NULL, header_color = NULL, ...) {
+    colDef(
+      cell = format_pct,
+      maxWidth = maxWidth,
+      headerStyle = list(background = header_color, color = "white", fontWeight = "Bold", fontSize = "14px"),
+      class = paste("cell number", class),
+      style = function(value) {
+        # Lighter color for <1%
+        if (value <= 0.01) {
+          list(color = "#aaa")
+          } else if (value >= 1) {
+            list(color = "#111", fontWeight = "Bold", background = util_pct_color(1))
+          } else {
+            list(color = "#111", fontWeight = "Bold", background = util_pct_color(value))
+            }
+        },
+      ...
+    )
+    }
+  
+  format_pct <- function(value) {
+    if (value <= 0.01) "  \u2013 "    # en dash for 0%
+    # else if (value == 1) "\u2713"  # checkmark for 100%
+    else formatC(paste0(round(value * 100), "%"), width = 4)
+    }
+  
+  make_color_pal <- function(colors, bias = 1) {
+    get_color <- colorRamp(colors, bias = bias)
+    function(x) rgb(get_color(x), maxColorValue = 255)
+    }
+  
+  util_pct_color <- make_color_pal(c("#fc8d59", "#ffffbf","#5cd65c"), bias = 2)
+
+  
+  # Table Output
   reactable(
     prov_dashboard_tbl,
     # groupBy = c("Campus","Campus.Specialty"),
@@ -1788,115 +1905,28 @@ renderReactable({
       minWidth = 90,
       headerStyle = list(fontWeight = "Bold", fontSize = "14px")
     ),
-    avg_vol_Day = colDef(name = "Avg Weekday Volume",
-                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9")
-                           ),
-    visits_var_Day = colDef(name = "Variance from Target",
-                           headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9"),
-                           cell = data_bars(prov_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
-                           ), 
-    visits_util_Day = colDef(name = "% Utilization (By Turns)",
-                                    headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                    format = colFormat(percent = TRUE, digits = 0),
-                                    style = function(value) {
-                                      if(!is.numeric(value)) return()
-                                     normalized <- (value - min(prov_dashboard_tbl$visits_util_Day, na.rm = TRUE))/
-                                       (max(prov_dashboard_tbl$visits_util_Day, na.rm = TRUE) - 
-                                          min(prov_dashboard_tbl$visits_util_Day, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    dur_util_Day = colDef(name = "% Utilization (By Duration)",
-                                 headerStyle = list(background = "#221f72", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                 format = colFormat(percent = TRUE),
-                                  style = function(value) {
-                                    if(!is.numeric(value)) return()
-                                     normalized <- (value - min(prov_dashboard_tbl$dur_util_Day, na.rm = TRUE))/
-                                       (max(prov_dashboard_tbl$dur_util_Day, na.rm = TRUE) - 
-                                          min(prov_dashboard_tbl$dur_util_Day, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    avg_vol_AM = colDef(name = "Avg Weekday Volume",
-                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9")
-                           ),
-    visits_var_AM = colDef(name = "Variance from Target",
-                           headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9"),
-                           cell = data_bars(prov_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
-                           ), 
-    visits_util_AM = colDef(name = "% Utilization (By Turns)",
-                                    headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                    format = colFormat(percent = TRUE, digits = 0),
-                                    style = function(value) {
-                                      if(!is.numeric(value)) return()
-                                     normalized <- (value - min(prov_dashboard_tbl$visits_util_AM, na.rm = TRUE))/
-                                       (max(prov_dashboard_tbl$visits_util_AM, na.rm = TRUE) - 
-                                          min(prov_dashboard_tbl$visits_util_AM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    dur_util_AM = colDef(name = "% Utilization (By Duration)",
-                                 headerStyle = list(background = "#d80b8c", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                 format = colFormat(percent = TRUE),
-                                  style = function(value) {
-                                    if(!is.numeric(value)) return()
-                                     normalized <- (value - min(prov_dashboard_tbl$dur_util_AM, na.rm = TRUE))/
-                                       (max(prov_dashboard_tbl$dur_util_AM, na.rm = TRUE) - 
-                                          min(prov_dashboard_tbl$dur_util_AM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    avg_vol_PM = colDef(name = "Avg Weekday Volume",
-                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9")
-                           ),
-    visits_var_PM = colDef(name = "Variance from Target",
-                           headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                           # style = list(background = "#EBEBF9"),
-                           cell = data_bars(prov_dashboard_tbl, fill_color = c("#ffb3b3","#adebad"), text_position = "outside-end", align_bars = "left")
-                           ), 
-    visits_util_PM = colDef(name = "% Utilization (By Turns)",
-                                    headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                    format = colFormat(percent = TRUE, digits = 0),
-                                    style = function(value) {
-                                      if(!is.numeric(value)) return(list(background = "black"))
-                                     normalized <- (value - min(prov_dashboard_tbl$visits_util_PM, na.rm = TRUE))/
-                                       (max(prov_dashboard_tbl$visits_util_PM, na.rm = TRUE) - 
-                                          min(prov_dashboard_tbl$visits_util_PM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")}),
-    dur_util_PM = colDef(name = "% Utilization (By Duration)",
-                                 headerStyle = list(background = "#00aeef", color = "white", fontWeight = "Bold", fontSize = "14px"),
-                                 format = colFormat(percent = TRUE),
-                                  style = function(value) {
-                                    if(value == 0) return(list(background = "black"))
-                                     normalized <- (value - min(prov_dashboard_tbl$dur_util_PM, na.rm = TRUE))/
-                                       (max(prov_dashboard_tbl$dur_util_PM, na.rm = TRUE) - 
-                                          min(prov_dashboard_tbl$dur_util_PM, na.rm = TRUE))
-                                      color <- RdYlGrn(normalized)
-                                      list(background = color,
-                                           fontSize = "14px",
-                                           fontWeight = "Bold")})
+    avg_vol_Day = vol_column(name = "Avg Weekday Volume", header_color = "#221f72"),
+    visits_var_Day = vol_var_column(name = "Variance from Target", header_color = "#221f72"),
+    visits_util_Day = util_column(name = "% Utilization (By Turns)", class = "border-left", header_color = "#221f72"),
+    dur_util_Day = util_column(name = "% Utilization (By Duration)", class = "border-left", header_color = "#221f72"),
+    avg_vol_AM = vol_column(name = "Avg Weekday Volume", header_color = "#d80b8c"),
+    visits_var_AM = vol_var_column(name = "Variance from Target", header_color = "#d80b8c"),
+    visits_util_AM = util_column(name = "% Utilization (By Turns)", class = "border-left", header_color = "#d80b8c"),
+    dur_util_AM = util_column(name = "% Utilization (By Duration)", class = "border-left", header_color = "#d80b8c"),
+    avg_vol_PM = vol_column(name = "Avg Weekday Volume", header_color = "#00aeef"),
+    visits_var_PM = vol_var_column(name = "Variance from Target", header_color = "#00aeef"),
+    visits_util_PM = util_column(name = "% Utilization (By Turns)", class = "border-left", header_color = "#00aeef"),
+    dur_util_PM = util_column(name = "% Utilization (By Duration)", class = "border-left", header_color = "#00aeef")
     ),
   details = function(index) {
     htmltools::div(
       h2(paste(paste0(as.character(prov_dashboard_tbl[index,c("Campus")]), " ",
                       as.character(prov_dashboard_tbl[index,c("Campus.Specialty")]), " - ",
-                      as.character(prov_dashboard_tbl[index,c("Provider")]))
-               # ": Utilizaiton by Hour (Includes ", input$select_provider_visit, " visits)")
-         )),
-      hw_grid(prov_util_hour_detail_function(index), prov_util_space_detail_function(index), prov_util_visit_detail_function(index))
-    )
+                      as.character(prov_dashboard_tbl[index,c("Provider")])),
+               ": Utilizaiton by Hour (Includes ", input$select_provider_visit, " visits)")
+         ),
+      hw_grid(prov_util_hour_detail_function(index), prov_util_space_detail_function(index), prov_util_visit_detail_function(index)),
+      h2(" ")    )
     } # Close details
   
   )  # Close reactable
